@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useAuth } from './AuthContext';
 import './HistoryCard.css';
 
 const HistoryCard = ({ period, onViewDetails, isExpanded, onToggleExpand }) => {
+  const { currentUser } = useAuth();
+  const isStudent = currentUser && currentUser.role === 'student';
+
   const getRoomStats = () => {
     if (!period.people) return [];
     
@@ -71,12 +75,23 @@ const HistoryCard = ({ period, onViewDetails, isExpanded, onToggleExpand }) => {
             <div className="people-list-preview">
               <h4 className="section-title">People in this Period</h4>
               <div className="people-preview">
-                {period.people.slice(0, 5).map((person, idx) => (
-                  <div key={idx} className="person-item">
-                    <span className="person-name">{person.name}</span>
-                    <span className="person-reg">{person.registrationNumber}</span>
-                  </div>
-                ))}
+                {period.people.slice(0, 5).map((person, idx) => {
+                  const isSelf = isStudent && currentUser && (
+                    (currentUser.id && currentUser.id === person.id) ||
+                    (currentUser.username && (currentUser.username === person.registrationNumber || currentUser.username === person.id)) ||
+                    (currentUser.registrationNumber && currentUser.registrationNumber === person.registrationNumber)
+                  );
+                  const showPrivateDetails = !isStudent || isSelf;
+
+                  return (
+                    <div key={idx} className="person-item">
+                      <span className="person-name">{person.name}</span>
+                      {showPrivateDetails && (
+                        <span className="person-reg">{person.registrationNumber}</span>
+                      )}
+                    </div>
+                  );
+                })}
                 {period.people.length > 5 && (
                   <p className="more-people">
                     +{period.people.length - 5} more people

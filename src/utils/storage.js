@@ -9,7 +9,11 @@ const STORAGE_KEYS = {
   LIST_PERIODS: 'rnl_list_periods',
   CURRENT_PERIOD: 'rnl_current_period',
   METADATA: 'rnl_metadata',
-  USERS: 'rnl_users'
+  USERS: 'rnl_users',
+  FEES: 'rnl_fees',
+  COMPLAINTS: 'rnl_complaints',
+  LEAVES: 'rnl_leaves',
+  NOTIFICATIONS: 'rnl_notifications'
 };
 
 /**
@@ -36,6 +40,18 @@ export const initializeStorage = () => {
       { id: 'admin-001', username: 'admin', password: 'admin', role: 'admin' },
       { id: 'student-001', username: 'student', password: 'password', role: 'student' }
     ]));
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.FEES)) {
+    localStorage.setItem(STORAGE_KEYS.FEES, JSON.stringify([]));
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.COMPLAINTS)) {
+    localStorage.setItem(STORAGE_KEYS.COMPLAINTS, JSON.stringify([]));
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.LEAVES)) {
+    localStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify([]));
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS)) {
+    localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify([]));
   }
 };
 
@@ -214,6 +230,66 @@ export const saveUsers = (users) => {
 };
 
 /**
+ * Get all fees
+ */
+export const getFees = () => {
+  const data = localStorage.getItem(STORAGE_KEYS.FEES);
+  return data ? JSON.parse(data) : [];
+};
+
+/**
+ * Save fees
+ */
+export const saveFees = (fees) => {
+  localStorage.setItem(STORAGE_KEYS.FEES, JSON.stringify(fees));
+};
+
+/**
+ * Get all complaints
+ */
+export const getComplaints = () => {
+  const data = localStorage.getItem(STORAGE_KEYS.COMPLAINTS);
+  return data ? JSON.parse(data) : [];
+};
+
+/**
+ * Save complaints
+ */
+export const saveComplaints = (complaints) => {
+  localStorage.setItem(STORAGE_KEYS.COMPLAINTS, JSON.stringify(complaints));
+};
+
+/**
+ * Get all leaves
+ */
+export const getLeaves = () => {
+  const data = localStorage.getItem(STORAGE_KEYS.LEAVES);
+  return data ? JSON.parse(data) : [];
+};
+
+/**
+ * Save leaves
+ */
+export const saveLeaves = (leaves) => {
+  localStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify(leaves));
+};
+
+/**
+ * Get all notifications
+ */
+export const getNotifications = () => {
+  const data = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
+  return data ? JSON.parse(data) : [];
+};
+
+/**
+ * Save notifications
+ */
+export const saveNotifications = (notifications) => {
+  localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
+};
+
+/**
  * Clear all data (for settings/reset)
  */
 export const clearAllData = () => {
@@ -222,6 +298,10 @@ export const clearAllData = () => {
   localStorage.removeItem(STORAGE_KEYS.LIST_PERIODS);
   localStorage.removeItem(STORAGE_KEYS.CURRENT_PERIOD);
   localStorage.removeItem(STORAGE_KEYS.METADATA);
+  localStorage.removeItem(STORAGE_KEYS.FEES);
+  localStorage.removeItem(STORAGE_KEYS.COMPLAINTS);
+  localStorage.removeItem(STORAGE_KEYS.LEAVES);
+  localStorage.removeItem(STORAGE_KEYS.NOTIFICATIONS);
   // Do not remove USERS to preserve login credentials
   initializeStorage();
 };
@@ -237,6 +317,10 @@ export const exportAllData = () => {
     currentPeriod: getCurrentPeriod(),
     metadata: getMetadata(),
     users: getUsers(),
+    fees: getFees(),
+    complaints: getComplaints(),
+    leaves: getLeaves(),
+    notifications: getNotifications(),
     exportDate: new Date().toISOString()
   };
 };
@@ -252,6 +336,10 @@ export const importData = (data) => {
     if (data.currentPeriod) saveCurrentPeriod(data.currentPeriod);
     if (data.metadata) saveMetadata(data.metadata);
     if (data.users) saveUsers(data.users);
+    if (data.fees) saveFees(data.fees);
+    if (data.complaints) saveComplaints(data.complaints);
+    if (data.leaves) saveLeaves(data.leaves);
+    if (data.notifications) saveNotifications(data.notifications);
     return true;
   } catch (error) {
     console.error('Import error:', error);

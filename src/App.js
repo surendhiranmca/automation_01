@@ -10,6 +10,10 @@ import { initializeSampleData } from './utils/sampleData';
 import Dashboard from './pages/Dashboard';
 import Rooms from './pages/Rooms';
 import NameList from './pages/NameList';
+import Fees from './pages/Fees';
+import Complaints from './pages/Complaints';
+import Leaves from './pages/Leaves';
+import Reports from './pages/Reports';
 import History from './pages/History';
 import Settings from './pages/Settings';
 import Users from './pages/Users';
@@ -53,6 +57,10 @@ function AppContent() {
       dashboard: 'Dashboard',
       rooms: 'Room Management',
       namelist: 'Name List',
+      fees: 'Hostel Fee Management',
+      complaints: 'Complaint Management',
+      leaves: 'Leave Management',
+      reports: 'Reports & Analytics',
       history: 'History',
       settings: 'Settings',
       users: 'User Management'
@@ -68,6 +76,14 @@ function AppContent() {
         return <Rooms />;
       case 'namelist':
         return <NameList />;
+      case 'fees':
+        return <Fees />;
+      case 'complaints':
+        return <Complaints />;
+      case 'leaves':
+        return <Leaves />;
+      case 'reports':
+        return <Reports />;
       case 'history':
         return <History />;
       case 'settings':

@@ -9,6 +9,10 @@ const Sidebar = ({ currentPage, onPageChange }) => {
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'rooms', label: 'Rooms', icon: '🏠' },
     { id: 'namelist', label: 'Name List', icon: '👥' },
+    { id: 'fees', label: 'Hostel Fees', icon: '💵' },
+    { id: 'complaints', label: 'Complaints', icon: '⚠️' },
+    { id: 'leaves', label: 'Leave Requests', icon: '🏖️' },
+    { id: 'reports', label: 'Reports', icon: '📈' },
     { id: 'history', label: 'History', icon: '📜' },
     { id: 'settings', label: 'Settings', icon: '⚙️', roles: ['admin'] },
     { id: 'users', label: 'Users', icon: '👤', roles: ['admin'] }

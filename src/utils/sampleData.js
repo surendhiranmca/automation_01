@@ -211,13 +211,141 @@ export const samplePeople = [
   }
 ];
 
+// Sample Fees
+export const sampleFees = [
+  {
+    id: generateUUID(),
+    personId: samplePeople[0].id,
+    personName: samplePeople[0].name,
+    registrationNumber: samplePeople[0].registrationNumber,
+    roomNumber: sampleRooms[0].roomNumber,
+    month: 'August 2026',
+    amount: 4500,
+    paidAmount: 4500,
+    dueDate: '2026-08-10',
+    paidDate: '2026-08-02',
+    status: 'Paid',
+    paymentMode: 'Online Transfer',
+    transactionRef: 'TXN9928120'
+  },
+  {
+    id: generateUUID(),
+    personId: samplePeople[1].id,
+    personName: samplePeople[1].name,
+    registrationNumber: samplePeople[1].registrationNumber,
+    roomNumber: sampleRooms[0].roomNumber,
+    month: 'August 2026',
+    amount: 4500,
+    paidAmount: 0,
+    dueDate: '2026-08-10',
+    paidDate: null,
+    status: 'Pending',
+    paymentMode: null,
+    transactionRef: null
+  },
+  {
+    id: generateUUID(),
+    personId: samplePeople[2].id,
+    personName: samplePeople[2].name,
+    registrationNumber: samplePeople[2].registrationNumber,
+    roomNumber: sampleRooms[1].roomNumber,
+    month: 'July 2026',
+    amount: 4500,
+    paidAmount: 0,
+    dueDate: '2026-07-25',
+    paidDate: null,
+    status: 'Overdue',
+    paymentMode: null,
+    transactionRef: null
+  }
+];
+
+// Sample Complaints
+export const sampleComplaints = [
+  {
+    id: generateUUID(),
+    personId: samplePeople[0].id,
+    personName: samplePeople[0].name,
+    registrationNumber: samplePeople[0].registrationNumber,
+    roomNumber: sampleRooms[0].roomNumber,
+    category: 'Wi-Fi',
+    priority: 'High',
+    description: 'Wi-Fi connectivity is very weak on the 1st floor.',
+    status: 'Pending',
+    createdDate: todayStr,
+    resolvedDate: null,
+    adminRemarks: null
+  },
+  {
+    id: generateUUID(),
+    personId: samplePeople[1].id,
+    personName: samplePeople[1].name,
+    registrationNumber: samplePeople[1].registrationNumber,
+    roomNumber: sampleRooms[0].roomNumber,
+    category: 'Maintenance',
+    priority: 'Medium',
+    description: 'Bathroom door lock is loose.',
+    status: 'In Progress',
+    createdDate: todayStr,
+    resolvedDate: null,
+    adminRemarks: 'Carpenter assigned'
+  },
+  {
+    id: generateUUID(),
+    personId: samplePeople[2].id,
+    personName: samplePeople[2].name,
+    registrationNumber: samplePeople[2].registrationNumber,
+    roomNumber: sampleRooms[1].roomNumber,
+    category: 'Electricity',
+    priority: 'Low',
+    description: 'Study table bulb needs replacement.',
+    status: 'Resolved',
+    createdDate: todayStr,
+    resolvedDate: todayStr,
+    adminRemarks: 'Replaced with new 12W LED bulb.'
+  }
+];
+
+// Sample Leaves
+export const sampleLeaves = [
+  {
+    id: generateUUID(),
+    personId: samplePeople[0].id,
+    personName: samplePeople[0].name,
+    registrationNumber: samplePeople[0].registrationNumber,
+    roomNumber: sampleRooms[0].roomNumber,
+    leaveDate: '2026-08-10',
+    returnDate: '2026-08-14',
+    reason: 'Family Function in hometown',
+    contactNumber: '9876543210',
+    parentContact: '9876543211',
+    status: 'Approved',
+    appliedDate: todayStr,
+    adminRemarks: 'Approved by Warden'
+  },
+  {
+    id: generateUUID(),
+    personId: samplePeople[1].id,
+    personName: samplePeople[1].name,
+    registrationNumber: samplePeople[1].registrationNumber,
+    roomNumber: sampleRooms[0].roomNumber,
+    leaveDate: '2026-08-12',
+    returnDate: '2026-08-15',
+    reason: 'Medical checkup',
+    contactNumber: '9876543212',
+    parentContact: '9876543213',
+    status: 'Pending',
+    appliedDate: todayStr,
+    adminRemarks: null
+  }
+];
+
 /**
  * Initialize sample data into storage
  */
 export const initializeSampleData = () => {
   // Check if data already exists
   const existingRooms = localStorage.getItem('rnl_rooms');
-  const existingPeople = localStorage.getItem('rnl_people');
 
   if (existingRooms && JSON.parse(existingRooms).length > 0) {
     console.log('Sample data already exists, skipping initialization');
@@ -227,6 +355,9 @@ export const initializeSampleData = () => {
   try {
     localStorage.setItem('rnl_rooms', JSON.stringify(sampleRooms));
     localStorage.setItem('rnl_people', JSON.stringify(samplePeople));
+    localStorage.setItem('rnl_fees', JSON.stringify(sampleFees));
+    localStorage.setItem('rnl_complaints', JSON.stringify(sampleComplaints));
+    localStorage.setItem('rnl_leaves', JSON.stringify(sampleLeaves));
     
     // Update metadata
     const metadata = {
@@ -256,6 +387,9 @@ export const getSampleDataSummary = () => {
   return {
     totalRooms: sampleRooms.length,
     totalPeople: samplePeople.length,
+    totalFees: sampleFees.length,
+    totalComplaints: sampleComplaints.length,
+    totalLeaves: sampleLeaves.length,
     roomDetails: sampleRooms.map(room => ({
       roomNumber: room.roomNumber,
       roomName: room.roomName,

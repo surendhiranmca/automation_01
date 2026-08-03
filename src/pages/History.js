@@ -4,11 +4,14 @@ import Modal from '../components/Modal';
 import { useListGeneration } from '../hooks/useListGeneration';
 import { useRooms } from '../hooks/useRooms';
 import { formatDate } from '../utils/dateUtils';
+import { useAuth } from '../components/AuthContext';
 import './History.css';
 
 const History = () => {
   const { getAllPeriods } = useListGeneration();
   const { rooms } = useRooms();
+  const { currentUser } = useAuth();
+  const isStudent = currentUser && currentUser.role === 'student';
   const [periods, setPeriods] = useState([]);
   const [expandedPeriodId, setExpandedPeriodId] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
@@ -134,17 +137,26 @@ const History = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {roomPeople.map(person => (
-                              <tr key={person.id}>
-                                <td>{person.name}</td>
-                                <td>{person.registrationNumber}</td>
-                                <td>
-                                  <span className={`status-badge status-${person.status}`}>
-                                    {person.status}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
+                            {roomPeople.map(person => {
+                              const isSelf = isStudent && currentUser && (
+                                (currentUser.id && currentUser.id === person.id) ||
+                                (currentUser.username && (currentUser.username === person.registrationNumber || currentUser.username === person.id)) ||
+                                (currentUser.registrationNumber && currentUser.registrationNumber === person.registrationNumber)
+                              );
+                              const showPrivateDetails = !isStudent || isSelf;
+
+                              return (
+                                <tr key={person.id}>
+                                  <td>{person.name}</td>
+                                  <td>{showPrivateDetails ? person.registrationNumber : '-'}</td>
+                                  <td>
+                                    <span className={`status-badge status-${person.status}`}>
+                                      {person.status}
+                                    </span>
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>

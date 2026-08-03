@@ -145,6 +145,7 @@ app.post('/api/auth/student-login', (req, res) => {
         user: {
           id: person.id,
           username: person.registrationNumber,
+          registrationNumber: person.registrationNumber,
           role: 'student',
           roomId: person.roomId,
           name: person.name
@@ -170,6 +171,7 @@ app.post('/api/auth/student-login', (req, res) => {
           user: {
             id: person.id,
             username: person.registrationNumber,
+            registrationNumber: person.registrationNumber,
             role: 'student',
             roomId: person.roomId,
             name: person.name

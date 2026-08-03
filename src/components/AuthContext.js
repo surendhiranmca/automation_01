@@ -39,13 +39,45 @@ export const AuthProvider = ({ children }) => {
           return { success: false, message: `Access denied: This portal is for ${expectedRole}s only.` };
         }
         
-        setCurrentUser(data.user);
-        localStorage.setItem('rnl_current_user', JSON.stringify(data.user));
+        const userObj = {
+          ...data.user,
+          registrationNumber: data.user.registrationNumber || data.user.username
+        };
+        
+        setCurrentUser(userObj);
+        localStorage.setItem('rnl_current_user', JSON.stringify(userObj));
         return { success: true };
       }
       return { success: false, message: data.message || 'Invalid credentials' };
     } catch (error) {
       console.error('Login error:', error);
+      
+      // Fallback check against localStorage data if server endpoint is unreachable
+      if (expectedRole === 'student') {
+        const storedPeople = localStorage.getItem('rnl_people');
+        if (storedPeople) {
+          const people = JSON.parse(storedPeople);
+          const person = people.find(p => p.registrationNumber === username);
+          if (person && person.dob) {
+            const dateParts = person.dob.split('-');
+            const formattedDob = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+            if (formattedDob === password || person.dob === password) {
+              const userObj = {
+                id: person.id,
+                username: person.registrationNumber,
+                registrationNumber: person.registrationNumber,
+                role: 'student',
+                roomId: person.roomId,
+                name: person.name
+              };
+              setCurrentUser(userObj);
+              localStorage.setItem('rnl_current_user', JSON.stringify(userObj));
+              return { success: true };
+            }
+          }
+        }
+      }
+
       return { success: false, message: 'Server error. Is the backend running?' };
     }
   };
