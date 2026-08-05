@@ -38,24 +38,44 @@ The **Room Name List Automation System** is engineered as a hybrid web applicati
 
 ### 1. Data Flow & Custom Hooks
 
-| Custom Hook | Primary Responsibility | Data Source |
+| Custom Hook / Provider | Primary Responsibility | Data Source |
 | :--- | :--- | :--- |
-| `useRooms` | CRUD state management for room records & capacity tracking | API + `localStorage` fallback |
-| `usePeople` | Person management, room assignments, and student transfers | API + `localStorage` fallback |
+| `AuthContext` | Multi-role user authentication & session state for 6 User Roles (Super Admin, Hostel Admin, Warden, Accountant, Student, Security Guard) | Session Storage & API |
+| `useRooms` | CRUD state management for refectory tables & room records | API + `localStorage` fallback |
+| `usePeople` | Resident student management, room assignments, and refectory transfers | API + `localStorage` fallback |
 | `useListGeneration` | 15-day period date calculations, countdown, and list archiving | Automated timer & trigger logic |
+| `useVisitors` | Visitor check-in pass issuance, contact details, host student lookup, and check-out timestamping | API + `localStorage` fallback |
+| `useAttendance` | Daily roll call matrix per room/table (`Present`, `Absent`, `On Leave`) | API + `localStorage` fallback |
+| `useAuditLogs` | System security & activity tracking log for authentications, payments, leave decisions | API + `localStorage` fallback |
 | `useNotification` | Dispatches toast alerts for success, error, and info updates | Application UI State |
 
 ### 2. Page Hierarchy & Component Tree
 
-- **`App.js`**: Top-level router, state orchestrator, global toast notification portal.
-  - **`Header.js`**: System health status, current list period display, next update countdown.
-  - **`Sidebar.js`**: Navigation bar with collapse toggles for desktop & mobile viewports.
-  - **Pages**:
-    - **`Dashboard.js`**: Key Performance Indicators (KPIs), room utilization meters, countdown progress bar.
-    - **`Rooms.js`**: Room registry table, modal trigger forms (`AddRoomModal.js`), capacity indicators.
-    - **`NameList.js`**: Interactive resident list, search/filter bars, room transfer modal (`TransferPersonModal.js`).
-    - **`History.js`**: Read-only periodic list snapshots (`HistoryCard.js`) with full detail modal view.
-    - **`Settings.js`**: Data backup JSON exporter/importer, database purge actions, app diagnostics.
+- **`App.js`**: Top-level router with `AuthProvider` state orchestrator, global toast notification portal.
+  - **`Header.js`**: System health status, interactive Notification Center bell dropdown with unread badge counter.
+  - **`Sidebar.js`**: Role-aware navigation sidebar with responsive collapse toggles for desktop & mobile viewports.
+  - **Pages (15 Full Views)**:
+    - **`WelcomeDashboard.js`**: Student Home Portal - personal room metadata, roommates list, pending dues, receipt history.
+    - **`Dashboard.js`**: Admin Executive Dashboard - 8 KPI cards, monthly fee chart, leave volume chart, payment distribution.
+    - **`Login.js`**: Secure authentication portal supporting User IDs (`DBSM2026xxxx`) and admin logins.
+    - **`Rooms.js`**: Refectory Table & Room management desk.
+    - **`NameList.js`**: Resident student directory (95 refectory allocations).
+    - **`Fees.js`**: Hostel fee management & student payment portal with online gateway simulation and printable GST receipts.
+    - **`Leaves.js`**: Outstation leave request approval desk with Warden Remarks modal.
+    - **`Attendance.js`**: Daily night roll call attendance matrix per table/room.
+    - **`Visitors.js`**: Gate visitor check-in pass desk with exit timestamping.
+    - **`Complaints.js`**: Maintenance complaint resolution desk.
+    - **`Reports.js`**: Analytical exporter & multi-format data downloader (CSV/JSON/PDF).
+    - **`AuditLogs.js`**: System security activity tracking log.
+    - **`Users.js`**: User account management desk.
+    - **`History.js`**: 15-day periodic snapshot archive viewer.
+    - **`Settings.js`**: System configuration, data backup, and data reset.
+    - **`Leaves.js`**: Student leave request tracking with Admin approval/rejection modal (`AddLeaveModal.js`).
+    - **`Complaints.js`**: Maintenance complaint ticketing desk with priority levels (High, Medium, Low) and resolution status (`AddComplaintModal.js`).
+    - **`Reports.js`**: Analytics graphs, room distribution matrix, and data export tools (CSV/JSON/PDF).
+    - **`Users.js`**: Admin user permissions, accounts table, and role assignments.
+    - **`History.js`**: Read-only 15-day periodic list snapshots (`HistoryCard.js`) with full detail modal view.
+    - **`Settings.js`**: JSON backup exporter/importer, database purge actions, app diagnostics.
 
 ---
 

@@ -36,45 +36,58 @@ cd "C:\Users\suren\Dropbox\Dacuments\Study Metirials\Automation"
 cd "/path/to/Automation"
 ```
 
-### Step 2: Install Dependencies
+### Step 2: Install Frontend & Backend Dependencies
 
+**Frontend Dependencies:**
 ```bash
 npm install
 ```
 
-This will:
-- Download React and dependencies (~300MB)
-- Create `node_modules` folder
-- Generate `package-lock.json`
+**Backend Server Dependencies:**
+```bash
+cd backend
+npm install
+cd ..
+```
 
-**This takes 2-5 minutes depending on internet speed.**
+### Step 3: Set Up Database (Optional for MySQL, Zero-Config Fallback Available)
 
-### Step 3: Start Development Server
+#### Mode A: Production MySQL Database
+1. Ensure MySQL Server 8.0+ is running locally or on cloud.
+2. Execute schema script:
+   ```bash
+   mysql -u root -p < backend/schema.sql
+   ```
+3. Set environment variables (or `.env` file):
+   ```env
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=yourpassword
+   DB_NAME=hostel_automation
+   PORT=5000
+   ```
 
+#### Mode B: Zero-Config In-Memory Fallback
+- No configuration required! If MySQL is not connected, the server automatically initializes in-memory fallback storage with demo admin user (`admin` / `admin`).
+
+### Step 4: Start Frontend and Backend Servers
+
+**Option 1: Run Backend API Server (Port 5000)**
+```bash
+node backend/server.js
+```
+
+**Option 2: Run React Frontend Client (Port 3000)**
 ```bash
 npm start
 ```
 
-**Expected output:**
-```
-Compiled successfully!
-
-You can now view room-name-list-automation in the browser.
-
-  Local:            http://localhost:3000
-  On Your Network:  http://192.168.x.x:3000
-
-Note that the development build is not optimized.
-To create a production build, use npm run build.
+**Option 3: Run Both Concurrently**
+```bash
+npm run dev
 ```
 
-The browser will automatically open at `http://localhost:3000`
-
-### Step 4: Application Loads
-
-- Sample data automatically loads on first run
-- Dashboard displays with demo rooms and people
-- You're ready to use the application!
+The browser will automatically open at `http://localhost:3000` with API connected at `http://localhost:5000/api`.
 
 ---
 

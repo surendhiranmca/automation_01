@@ -19,25 +19,76 @@ Complete testing procedures for all features of the application.
 
 ## ✅ Feature Testing
 
-### 1. Dashboard Testing
+---
 
-**Test 1.1: Dashboard Loads**
-- [ ] Navigate to Dashboard page
-- [ ] Verify all cards display: Total Rooms, Total People, Active People, Avg. per Room
-- [ ] Verify update status section shows countdown
-- [ ] Verify room distribution chart displays
+### 4. Authentication & Security Testing
 
-**Test 1.2: Update Status Display**
-- [ ] Verify "Last Updated" date is shown
-- [ ] Verify "Next Update" date is calculated correctly (15 days from last update)
-- [ ] Verify "Current Period" shows start and end dates
-- [ ] Verify countdown shows correct remaining days
+**Test 4.1: Admin Login**
+- [ ] Navigate to `/login`
+- [ ] Enter `admin` / `admin`
+- [ ] Verify successful login redirect to Admin Dashboard
+- [ ] Verify full sidebar menu is accessible
 
-**Test 1.3: KPI Calculations**
-- [ ] Verify "Total Rooms" matches room count
-- [ ] Verify "Total People" matches person count
-- [ ] Verify "Active People" correctly counts active status
-- [ ] Verify "Avg. per Room" divides total by room count
+**Test 4.2: Student Login**
+- [ ] Enter valid Registration Number (`REG2026001`) and formatted DOB (`15/08/2002`)
+- [ ] Verify successful login redirect to Student Welcome Portal (`WelcomeDashboard`)
+- [ ] Verify student view restricts access to admin-only settings
+
+---
+
+### 5. Fee Management & Receipt Printing Testing
+
+**Test 5.1: Bill Student / Add Fee**
+- [ ] Open Fees page → Click "+ Add Fee / Bill Student"
+- [ ] Select student, enter fee amount, due date, category
+- [ ] Click "Save Fee Record" → Verify entry in fee list
+
+**Test 5.2: Generate Printable GST Receipt**
+- [ ] Locate paid fee record → Click **"Receipt"** button
+- [ ] Verify official receipt modal renders student registration #, amount, tax breakdown, and date
+- [ ] Click "Print" button → Verify browser print preview triggers cleanly
+
+---
+
+### 6. Leave Application & Approval Desk Testing
+
+**Test 6.1: Submit Student Leave Application**
+- [ ] Open Leaves page → Click "+ Apply for Leave"
+- [ ] Enter leave start date, end date, reason
+- [ ] Click "Submit Request" → Verify request status displays as `Pending`
+
+**Test 6.2: Admin Approval / Rejection Workflow**
+- [ ] Log in as Admin/Staff → Navigate to Leaves page
+- [ ] Locate pending leave request
+- [ ] Click Approve (✅) → Verify status updates to `Approved`
+- [ ] Test Reject (❌) → Verify status updates to `Rejected`
+
+---
+
+### 7. Maintenance Complaints Desk Testing
+
+**Test 7.1: Lodge Maintenance Ticket**
+- [ ] Open Complaints page → Click "+ New Complaint"
+- [ ] Select category (Plumbing, Electrical, Furniture), set priority (`High`, `Medium`, `Low`)
+- [ ] Enter ticket description → Click "Submit Ticket"
+
+**Test 7.2: Ticket Status Resolution**
+- [ ] Filter complaints by status or priority
+- [ ] Toggle ticket status from `Pending` to `In-Progress` and `Resolved`
+- [ ] Verify status badge color updates (`Pending` yellow, `Resolved` green)
+
+---
+
+### 8. Analytics & Reports Testing
+
+**Test 8.1: Analytics Dashboard**
+- [ ] Navigate to Reports page
+- [ ] Verify occupancy distribution chart and category breakdown load
+- [ ] Verify filter triggers update charts dynamically
+
+**Test 8.2: Data Export Verification**
+- [ ] Click "Export CSV" → Verify `.csv` downloads with correct headers and rows
+- [ ] Click "Export JSON" → Verify valid JSON structure
 
 ---
 

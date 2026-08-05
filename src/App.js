@@ -13,6 +13,9 @@ import NameList from './pages/NameList';
 import Fees from './pages/Fees';
 import Complaints from './pages/Complaints';
 import Leaves from './pages/Leaves';
+import Attendance from './pages/Attendance';
+import Visitors from './pages/Visitors';
+import AuditLogs from './pages/AuditLogs';
 import Reports from './pages/Reports';
 import History from './pages/History';
 import Settings from './pages/Settings';
@@ -55,11 +58,14 @@ function AppContent() {
   const getPageTitle = () => {
     const titles = {
       dashboard: 'Dashboard',
-      rooms: 'Room Management',
+      rooms: 'Room & Table Management',
       namelist: 'Name List',
       fees: 'Hostel Fee Management',
       complaints: 'Complaint Management',
       leaves: 'Leave Management',
+      attendance: 'Daily Attendance Roll Call',
+      visitors: 'Visitor Pass Management',
+      auditlogs: 'Security Audit Logs',
       reports: 'Reports & Analytics',
       history: 'History',
       settings: 'Settings',
@@ -82,6 +88,12 @@ function AppContent() {
         return <Complaints />;
       case 'leaves':
         return <Leaves />;
+      case 'attendance':
+        return <Attendance />;
+      case 'visitors':
+        return <Visitors />;
+      case 'auditlogs':
+        return <AuditLogs />;
       case 'reports':
         return <Reports />;
       case 'history':

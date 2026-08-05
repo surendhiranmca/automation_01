@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from './AuthContext';
+import NotificationCenter from './NotificationCenter';
 import './Header.css';
 
 const Header = ({ title, updateStatus }) => {
@@ -25,9 +26,13 @@ const Header = ({ title, updateStatus }) => {
       </div>
 
       <div className="header-right">
+        <NotificationCenter />
+        
         {currentUser && (
           <div className="header-user-info">
-            <span className="user-name">Welcome, {currentUser.username}</span>
+            <span className="user-name">
+              {currentUser.role === 'student' ? `👨‍🎓 ${currentUser.name || currentUser.username}` : `🛡️ ${currentUser.username}`}
+            </span>
             <button className="logout-btn" onClick={logout}>Logout</button>
           </div>
         )}

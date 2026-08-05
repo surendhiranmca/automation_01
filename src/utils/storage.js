@@ -1,3 +1,5 @@
+import { sampleRooms, samplePeople, sampleFees, sampleLeaves, sampleComplaints } from './sampleData';
+
 /**
  * Storage Utilities for localStorage management
  * Handles all persistence layer operations
@@ -13,18 +15,21 @@ const STORAGE_KEYS = {
   FEES: 'rnl_fees',
   COMPLAINTS: 'rnl_complaints',
   LEAVES: 'rnl_leaves',
-  NOTIFICATIONS: 'rnl_notifications'
+  NOTIFICATIONS: 'rnl_notifications',
+  VISITORS: 'rnl_visitors',
+  ATTENDANCE: 'rnl_attendance',
+  AUDIT_LOGS: 'rnl_audit_logs'
 };
 
 /**
  * Initialize storage with default values if not present
  */
 export const initializeStorage = () => {
-  if (!localStorage.getItem(STORAGE_KEYS.ROOMS)) {
-    localStorage.setItem(STORAGE_KEYS.ROOMS, JSON.stringify([]));
+  if (!localStorage.getItem(STORAGE_KEYS.ROOMS) || JSON.parse(localStorage.getItem(STORAGE_KEYS.ROOMS)).length === 0) {
+    localStorage.setItem(STORAGE_KEYS.ROOMS, JSON.stringify(sampleRooms));
   }
-  if (!localStorage.getItem(STORAGE_KEYS.PEOPLE)) {
-    localStorage.setItem(STORAGE_KEYS.PEOPLE, JSON.stringify([]));
+  if (!localStorage.getItem(STORAGE_KEYS.PEOPLE) || JSON.parse(localStorage.getItem(STORAGE_KEYS.PEOPLE)).length === 0) {
+    localStorage.setItem(STORAGE_KEYS.PEOPLE, JSON.stringify(samplePeople));
   }
   if (!localStorage.getItem(STORAGE_KEYS.LIST_PERIODS)) {
     localStorage.setItem(STORAGE_KEYS.LIST_PERIODS, JSON.stringify([]));
@@ -41,14 +46,14 @@ export const initializeStorage = () => {
       { id: 'student-001', username: 'student', password: 'password', role: 'student' }
     ]));
   }
-  if (!localStorage.getItem(STORAGE_KEYS.FEES)) {
-    localStorage.setItem(STORAGE_KEYS.FEES, JSON.stringify([]));
+  if (!localStorage.getItem(STORAGE_KEYS.FEES) || JSON.parse(localStorage.getItem(STORAGE_KEYS.FEES)).length === 0) {
+    localStorage.setItem(STORAGE_KEYS.FEES, JSON.stringify(sampleFees));
   }
-  if (!localStorage.getItem(STORAGE_KEYS.COMPLAINTS)) {
-    localStorage.setItem(STORAGE_KEYS.COMPLAINTS, JSON.stringify([]));
+  if (!localStorage.getItem(STORAGE_KEYS.COMPLAINTS) || JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLAINTS)).length === 0) {
+    localStorage.setItem(STORAGE_KEYS.COMPLAINTS, JSON.stringify(sampleComplaints));
   }
-  if (!localStorage.getItem(STORAGE_KEYS.LEAVES)) {
-    localStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify([]));
+  if (!localStorage.getItem(STORAGE_KEYS.LEAVES) || JSON.parse(localStorage.getItem(STORAGE_KEYS.LEAVES)).length === 0) {
+    localStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify(sampleLeaves));
   }
   if (!localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS)) {
     localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify([]));
@@ -232,9 +237,79 @@ export const saveUsers = (users) => {
 /**
  * Get all fees
  */
+/**
+ * Get all fees and calculate automatic overdue status & late fees
+ */
 export const getFees = () => {
   const data = localStorage.getItem(STORAGE_KEYS.FEES);
-  return data ? JSON.parse(data) : [];
+  const fees = data ? JSON.parse(data) : [];
+  return checkAndUpdateOverdueFees(fees);
+};
+
+/**
+ * Check and update overdue fees with fine calculations
+ */
+export const checkAndUpdateOverdueFees = (feesList) => {
+  if (!feesList || !Array.isArray(feesList)) return [];
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const today = new Date(todayStr).getTime();
+  let updated = false;
+
+  const processedFees = feesList.map(fee => {
+    if (fee.status === 'Paid') {
+      return {
+        ...fee,
+        lateFee: fee.lateFee || 0,
+        totalPayable: fee.totalPayable || fee.amount || 0
+      };
+    }
+
+    const dueDate = new Date(fee.dueDate).getTime();
+    if (!isNaN(dueDate) && today > dueDate) {
+      const diffTime = today - dueDate;
+      const overdueDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const finePerDay = Number(fee.finePerDay) || 0;
+      const lateFee = overdueDays * finePerDay;
+      const originalAmount = Number(fee.amount) || 0;
+      const totalPayable = originalAmount + lateFee;
+
+      if (fee.status !== 'Overdue' || fee.lateFee !== lateFee || fee.totalPayable !== totalPayable) {
+        updated = true;
+        // Trigger alert notification for overdue fee if status changed
+        if (fee.status !== 'Overdue') {
+          addNotification({
+            userId: fee.personId || 'all',
+            registrationNumber: fee.registrationNumber,
+            title: '⚠️ Overdue Fee Alert',
+            message: `Hostel fee of ₹${originalAmount} for ${fee.feeType || 'Hostel Fee'} is overdue by ${overdueDays} days. Late Fee: ₹${lateFee}.`,
+            type: 'warning'
+          });
+        }
+        return {
+          ...fee,
+          status: 'Overdue',
+          overdueDays,
+          lateFee,
+          totalPayable
+        };
+      }
+    } else {
+      const originalAmount = Number(fee.amount) || 0;
+      return {
+        ...fee,
+        lateFee: 0,
+        totalPayable: originalAmount
+      };
+    }
+    return fee;
+  });
+
+  if (updated) {
+    localStorage.setItem(STORAGE_KEYS.FEES, JSON.stringify(processedFees));
+  }
+
+  return processedFees;
 };
 
 /**
@@ -280,6 +355,22 @@ export const saveLeaves = (leaves) => {
 export const getNotifications = () => {
   const data = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
   return data ? JSON.parse(data) : [];
+};
+
+/**
+ * Add a new notification
+ */
+export const addNotification = (notificationData) => {
+  const notifications = getNotifications();
+  const newNotification = {
+    id: generateUUID(),
+    isRead: false,
+    createdAt: new Date().toISOString(),
+    ...notificationData
+  };
+  const updated = [newNotification, ...notifications];
+  saveNotifications(updated);
+  return newNotification;
 };
 
 /**
@@ -340,9 +431,76 @@ export const importData = (data) => {
     if (data.complaints) saveComplaints(data.complaints);
     if (data.leaves) saveLeaves(data.leaves);
     if (data.notifications) saveNotifications(data.notifications);
+    if (data.visitors) saveVisitors(data.visitors);
+    if (data.attendance) saveAttendance(data.attendance);
+    if (data.auditLogs) saveAuditLogs(data.auditLogs);
     return true;
   } catch (error) {
     console.error('Import error:', error);
     return false;
   }
 };
+
+/**
+ * Get all visitors
+ */
+export const getVisitors = () => {
+  const data = localStorage.getItem(STORAGE_KEYS.VISITORS);
+  return data ? JSON.parse(data) : [];
+};
+
+/**
+ * Save visitors
+ */
+export const saveVisitors = (visitors) => {
+  localStorage.setItem(STORAGE_KEYS.VISITORS, JSON.stringify(visitors));
+};
+
+/**
+ * Get attendance records
+ */
+export const getAttendance = () => {
+  const data = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
+  return data ? JSON.parse(data) : [];
+};
+
+/**
+ * Save attendance records
+ */
+export const saveAttendance = (attendance) => {
+  localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendance));
+};
+
+/**
+ * Get audit logs
+ */
+export const getAuditLogs = () => {
+  const data = localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS);
+  return data ? JSON.parse(data) : [];
+};
+
+/**
+ * Save audit logs
+ */
+export const saveAuditLogs = (logs) => {
+  localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify(logs));
+};
+
+/**
+ * Log audit action
+ */
+export const logAuditAction = (userRole, username, action, details) => {
+  const logs = getAuditLogs();
+  const newLog = {
+    id: generateUUID(),
+    timestamp: new Date().toISOString(),
+    userRole: userRole || 'system',
+    username: username || 'system',
+    action,
+    details
+  };
+  const updated = [newLog, ...logs];
+  saveAuditLogs(updated);
+  return newLog;
+};
+

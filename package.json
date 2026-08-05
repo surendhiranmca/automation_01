@@ -13,8 +13,8 @@
     "react-scripts": "5.0.1"
   },
   "scripts": {
-    "start": "node backend/server.js",
-    "build": "npm install && react-scripts build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "build:react": "react-scripts build",
     "dev:frontend": "react-scripts start",
     "dev:backend": "node backend/server.js",

@@ -64,17 +64,48 @@ App opens at `http://localhost:3000` ✨
 3. Confirm
 4. All data deleted (can't undo!)
 
+### Logging In (Multi-Role Portal)
+1. Navigate to `/login` or click profile icon
+2. **Admin/Staff Login**: Enter Username (`admin`) & Password (`admin`)
+3. **Student Login**: Enter Registration Number (e.g. `REG2026001`) & Date of Birth (`DD/MM/YYYY`)
+
+### Add & Print Fee Receipts
+1. Click "Fees" in sidebar
+2. Click "+ Add Fee / Bill Student" to post tuition/hostel charges
+3. To view or print receipt, click **"Receipt"** button next to any paid entry
+4. Official GST receipt popup renders with print trigger (🖨️ Print)
+
+### Apply & Approve Student Leaves
+1. **Student**: Navigate to "Leaves" → Click "+ Apply for Leave" → Submit dates & reason
+2. **Admin/Staff**: Navigate to "Leaves" → Review pending requests → Click **"Approve"** (✅) or **"Reject"** (❌)
+
+### Submit & Resolve Complaints
+1. Click "Complaints" in sidebar → Click "+ New Complaint"
+2. Enter room/category, priority (`High`, `Medium`, `Low`), and detailed issue description
+3. Admin/Staff can toggle status between `Pending`, `In-Progress`, and `Resolved`
+
+### Export Analytical Reports
+1. Navigate to "Reports" in sidebar
+2. Filter analytics by date range or room category
+3. Click "Export CSV", "Export JSON", or "Print Report" to download system summary
+
 ---
 
 ## 🎯 Main Features at a Glance
 
-| Feature | Location | Use For |
-|---------|----------|---------|
-| Dashboard | Home | See overview & status |
-| Rooms | Sidebar → Rooms | Manage rooms |
-| Name List | Sidebar → Name List | Manage people |
-| History | Sidebar → History | View past lists |
-| Settings | Sidebar → Settings | Data & config |
+| Feature | Location | Access Level | Primary Task |
+|:---|:---|:---|:---|
+| **Welcome Portal** | Sidebar → Welcome | Student | Personal room details, leave status & fee statement |
+| **Dashboard** | Sidebar → Dashboard | Admin / Staff | Real-time KPIs, countdown bar, room utilization |
+| **Rooms** | Sidebar → Rooms | Admin / Staff | Create, edit, and track room capacities |
+| **Name List** | Sidebar → Name List | Admin / Staff | Register & transfer residents between rooms |
+| **Fees & Receipts** | Sidebar → Fees | All Users | Track payments & print official GST receipts |
+| **Leave Applications**| Sidebar → Leaves | All Users | Submit requests & approve/reject leave workflow |
+| **Maintenance Desk** | Sidebar → Complaints | All Users | Lodge issue tickets & monitor resolution status |
+| **Reports** | Sidebar → Reports | Admin / Staff | Analytical breakdowns & multi-format data exports |
+| **User Access** | Sidebar → Users | Admin | Manage user accounts and role permissions |
+| **History** | Sidebar → History | All Users | Inspect read-only 15-day snapshot archives |
+| **Settings** | Sidebar → Settings | All Users | Data backup/restore and system diagnostics |
 
 ---
 
@@ -82,8 +113,12 @@ App opens at `http://localhost:3000` ✨
 
 **Room Management** → Rooms page  
 **Person Management** → Name List page  
-**Past Data** → History page  
-**Export/Import** → Settings page  
+**Fee Bills & Receipts** → Fees page  
+**Leave Desk** → Leaves page  
+**Issue Tickets** → Complaints page  
+**Analytics & Exports** → Reports page  
+**Past Data Archives** → History page  
+**System Backup** → Settings page  
 **Update Status** → Dashboard / Header
 
 ---

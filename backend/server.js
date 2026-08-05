@@ -331,6 +331,102 @@ app.put('/api/people/:id/transfer', (req, res) => {
   });
 });
 
+// --- LEAVES ENDPOINTS ---
+app.get('/api/leaves', (req, res) => {
+  if (useFallbackDb || !db) return res.json(fallbackDb.leaves || []);
+  db.query('SELECT * FROM leaves ORDER BY createdAt DESC', (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+app.post('/api/leaves', (req, res) => {
+  const leave = req.body;
+  if (useFallbackDb || !db) {
+    if (!fallbackDb.leaves) fallbackDb.leaves = [];
+    fallbackDb.leaves.unshift(leave);
+    return res.json({ success: true, leave });
+  }
+  const query = 'INSERT INTO leaves SET ?';
+  db.query(query, leave, (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, leave });
+  });
+});
+
+// --- FEES ENDPOINTS ---
+app.get('/api/fees', (req, res) => {
+  if (useFallbackDb || !db) return res.json(fallbackDb.fees || []);
+  db.query('SELECT * FROM fees ORDER BY createdAt DESC', (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+app.post('/api/fees', (req, res) => {
+  const fee = req.body;
+  if (useFallbackDb || !db) {
+    if (!fallbackDb.fees) fallbackDb.fees = [];
+    fallbackDb.fees.unshift(fee);
+    return res.json({ success: true, fee });
+  }
+  const query = 'INSERT INTO fees SET ?';
+  db.query(query, fee, (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, fee });
+  });
+});
+
+// --- VISITORS ENDPOINTS ---
+app.get('/api/visitors', (req, res) => {
+  if (useFallbackDb || !db) return res.json(fallbackDb.visitors || []);
+  db.query('SELECT * FROM visitors ORDER BY checkInTime DESC', (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+app.post('/api/visitors', (req, res) => {
+  const visitor = req.body;
+  if (useFallbackDb || !db) {
+    if (!fallbackDb.visitors) fallbackDb.visitors = [];
+    fallbackDb.visitors.unshift(visitor);
+    return res.json({ success: true, visitor });
+  }
+  db.query('INSERT INTO visitors SET ?', visitor, (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, visitor });
+  });
+});
+
+// --- ATTENDANCE ENDPOINTS ---
+app.get('/api/attendance', (req, res) => {
+  if (useFallbackDb || !db) return res.json(fallbackDb.attendance || []);
+  db.query('SELECT * FROM attendance ORDER BY date DESC', (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+app.post('/api/attendance', (req, res) => {
+  const records = req.body;
+  if (useFallbackDb || !db) {
+    if (!fallbackDb.attendance) fallbackDb.attendance = [];
+    fallbackDb.attendance = [...records, ...fallbackDb.attendance];
+    return res.json({ success: true });
+  }
+  res.json({ success: true });
+});
+
+// --- AUDIT LOGS ENDPOINTS ---
+app.get('/api/audit-logs', (req, res) => {
+  if (useFallbackDb || !db) return res.json(fallbackDb.auditLogs || []);
+  db.query('SELECT * FROM audit_logs ORDER BY timestamp DESC', (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
 // --- SERVE REACT STATIC BUILD IN PRODUCTION ON RENDER ---
 const buildPath = path.join(__dirname, '../build');
 if (fs.existsSync(buildPath)) {

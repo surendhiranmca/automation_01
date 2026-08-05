@@ -11,53 +11,59 @@ import { formatDate } from '../utils/dateUtils';
 import './Dashboard.css';
 
 const Dashboard = ({ updateStatus }) => {
-  const { updateStatus: status, statistics, updateOccurred, getCountdownText, getUpdateProgressPercentage } = useListGeneration();
-  const { rooms, getTotalRooms } = useRooms();
-  const { people, getTotalPeople, getActivePeopleCount, getAveragePeoplePerRoom, getPeopleByRoom } = usePeople();
+  const { updateOccurred, getCountdownText, getUpdateProgressPercentage } = useListGeneration();
+  const { getTotalPeople, getPeopleByRoom } = usePeople();
   const { fees, getFeeStats } = useFees();
-  const { complaints, getComplaintStats } = useComplaints();
   const { leaves, getLeaveStats } = useLeaves();
   const { currentUser } = useAuth();
   
-  const [roomsCount, setRoomsCount] = useState(0);
   const [peopleCount, setPeopleCount] = useState(0);
-  const [activeCount, setActiveCount] = useState(0);
 
   const feeStats = getFeeStats();
-  const complaintStats = getComplaintStats();
   const leaveStats = getLeaveStats();
 
   useEffect(() => {
     if (currentUser && currentUser.role === 'student' && currentUser.roomId) {
       const roomPeople = getPeopleByRoom(currentUser.roomId);
-      setRoomsCount(1);
       setPeopleCount(roomPeople.length);
-      setActiveCount(roomPeople.filter(p => p.status === 'active').length);
     } else {
-      setRoomsCount(getTotalRooms());
       setPeopleCount(getTotalPeople());
-      setActiveCount(getActivePeopleCount());
     }
-  }, [getTotalRooms, getTotalPeople, getActivePeopleCount, getPeopleByRoom, currentUser]);
+  }, [getTotalPeople, getPeopleByRoom, currentUser]);
 
   const progressPercentage = getUpdateProgressPercentage();
 
-  const occupiedRoomsCount = useMemo(() => {
-    const occupiedRoomIds = new Set(people.map(p => p.roomId));
-    return occupiedRoomIds.size;
-  }, [people]);
+  // Monthly fee aggregation for chart
+  const monthlyFeeData = useMemo(() => {
+    const monthsMap = {};
+    fees.forEach(f => {
+      const monthKey = f.month || 'Current';
+      if (!monthsMap[monthKey]) monthsMap[monthKey] = 0;
+      monthsMap[monthKey] += (Number(f.paidAmount) || 0);
+    });
+    return Object.entries(monthsMap);
+  }, [fees]);
 
-  const availableRoomsCount = Math.max(0, rooms.length - occupiedRoomsCount);
+  // Leave requests by month
+  const monthlyLeaveData = useMemo(() => {
+    const leaveMap = {};
+    leaves.forEach(l => {
+      const monthKey = l.appliedDate ? new Date(l.appliedDate).toLocaleString('default', { month: 'short' }) : 'Aug';
+      if (!leaveMap[monthKey]) leaveMap[monthKey] = 0;
+      leaveMap[monthKey] += 1;
+    });
+    return Object.entries(leaveMap);
+  }, [leaves]);
 
   return (
     <div className="dashboard-page">
       <div className="dashboard-grid">
-        {/* Top Section - Update Status */}
+        {/* Top Section - 15 Day Update Status */}
         <div className="dashboard-section update-section">
-          <h2 className="section-title">15-Day Automation Cycle Status</h2>
+          <h2 className="section-title">⏱️ 15-Day Automatic Cycle Status</h2>
           <div className="update-info">
             <div className="update-countdown">
-              <h3>Next Automatic Update</h3>
+              <h3>Next Automatic Update Countdown</h3>
               <div className="countdown-box">
                 <p className="countdown-text">{getCountdownText()}</p>
                 <div className="progress-bar">
@@ -66,25 +72,25 @@ const Dashboard = ({ updateStatus }) => {
                     style={{ width: `${progressPercentage}%` }}
                   ></div>
                 </div>
-                <p className="progress-text">{progressPercentage}% complete</p>
+                <p className="progress-text">{progressPercentage}% cycle complete</p>
               </div>
             </div>
 
             <div className="update-details">
               <div className="detail-item">
-                <span className="detail-label">Last Updated</span>
+                <span className="detail-label">Last List Snapshot</span>
                 <span className="detail-value">
                   {updateStatus?.lastUpdateDate ? formatDate(updateStatus.lastUpdateDate) : 'N/A'}
                 </span>
               </div>
               <div className="detail-item">
-                <span className="detail-label">Next Update</span>
+                <span className="detail-label">Next List Regeneration</span>
                 <span className="detail-value">
                   {updateStatus?.nextUpdateDate ? formatDate(updateStatus.nextUpdateDate) : 'N/A'}
                 </span>
               </div>
               <div className="detail-item">
-                <span className="detail-label">Current Period</span>
+                <span className="detail-label">Active Period Range</span>
                 <span className="detail-value">
                   {updateStatus?.currentPeriodStart && updateStatus?.currentPeriodEnd
                     ? `${formatDate(updateStatus.currentPeriodStart)} - ${formatDate(updateStatus.currentPeriodEnd)}`
@@ -95,66 +101,120 @@ const Dashboard = ({ updateStatus }) => {
           </div>
         </div>
 
-        {/* Middle Section - Hostel Key Metrics */}
+        {/* 8 Enhanced KPI Cards */}
         <div className="dashboard-section kpi-section">
-          <h2 className="section-title">Hostel Key Metrics</h2>
+          <h2 className="section-title">📊 Executive Operations Dashboard</h2>
           <div className="kpi-grid">
             <DashboardCard
               title="Total Students"
               value={peopleCount}
-              icon="👥"
-              description="Assigned resident students"
+              icon="👨‍🎓"
+              description="Registered hostel residents"
               color="primary"
             />
             <DashboardCard
-              title="Occupied Rooms"
-              value={occupiedRoomsCount}
-              icon="🏠"
-              description="Rooms with assigned students"
-              color="success"
-            />
-            <DashboardCard
-              title="Available Rooms"
-              value={availableRoomsCount}
-              icon="🔑"
-              description="Vacant / unassigned rooms"
-              color="secondary"
-            />
-            <DashboardCard
-              title="Pending Fees"
-              value={`₹${feeStats.pendingFees.toLocaleString('en-IN')}`}
-              icon="💵"
-              description={`${feeStats.pendingCount + feeStats.overdueCount} pending fee records`}
+              title="Pending Leave Requests"
+              value={leaveStats.pending}
+              icon="⏳"
+              description="Awaiting warden approval"
               color="warning"
             />
             <DashboardCard
-              title="Active Complaints"
-              value={complaintStats.pending + complaintStats.inProgress}
-              icon="⚠️"
-              description={`${complaintStats.pending} pending, ${complaintStats.inProgress} in progress`}
+              title="Approved Leaves"
+              value={leaveStats.approved}
+              icon="✅"
+              description="Currently outstation"
+              color="success"
+            />
+            <DashboardCard
+              title="Rejected Leaves"
+              value={leaveStats.rejected}
+              icon="❌"
+              description="Declined applications"
               color="danger"
             />
             <DashboardCard
-              title="Students on Leave"
-              value={leaveStats.approved}
-              icon="🏖️"
-              description={`${leaveStats.pending} leave requests pending`}
+              title="Pending Fee Payments"
+              value={`₹${feeStats.pendingFees.toLocaleString('en-IN')}`}
+              icon="💳"
+              description={`${feeStats.pendingCount} unpaid fee dues`}
+              color="warning"
+            />
+            <DashboardCard
+              title="Paid Fee Amount"
+              value={`₹${feeStats.totalCollected.toLocaleString('en-IN')}`}
+              icon="💰"
+              description={`${feeStats.paidCount} completed transactions`}
+              color="success"
+            />
+            <DashboardCard
+              title="Overdue Fees"
+              value={`₹${feeStats.overdueFees.toLocaleString('en-IN')}`}
+              icon="🚨"
+              description={`${feeStats.overdueCount} overdue dues + fines`}
+              color="danger"
+            />
+            <DashboardCard
+              title="Total Hostel Revenue"
+              value={`₹${feeStats.totalRevenue.toLocaleString('en-IN')}`}
+              icon="🏦"
+              description="Total billed revenue"
               color="info"
             />
           </div>
         </div>
 
-        {/* Visual Distribution Charts Section */}
+        {/* Charts & Analytical Graphs */}
         {(!currentUser || currentUser.role === 'admin') && (
           <div className="dashboard-section room-section">
-            <h2 className="section-title">Hostel Operations Breakdown</h2>
+            <h2 className="section-title">📈 Financial & Operations Analytics</h2>
             <div className="dashboard-charts-grid">
-              {/* Fee Collection Status Bar */}
+              {/* Monthly Fee Collection */}
               <div className="chart-card">
-                <h3>Fee Collection Status</h3>
+                <h3>💵 Monthly Fee Collection (₹)</h3>
+                <div className="chart-bar-container">
+                  {monthlyFeeData.length > 0 ? (
+                    monthlyFeeData.map(([mnth, amt]) => (
+                      <div className="chart-bar-item" key={mnth}>
+                        <span>{mnth}: <strong>₹{amt.toLocaleString('en-IN')}</strong></span>
+                        <div className="bar-track">
+                          <div
+                            className="bar-fill fill-success"
+                            style={{ width: `${feeStats.totalRevenue ? Math.min(100, (amt / feeStats.totalRevenue) * 100) : 50}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-muted font-sm">No monthly payment data recorded.</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Leave Requests by Month */}
+              <div className="chart-card">
+                <h3>📝 Leave Requests Volume</h3>
+                <div className="chart-bar-container">
+                  {monthlyLeaveData.map(([mnth, count]) => (
+                    <div className="chart-bar-item" key={mnth}>
+                      <span>{mnth}: <strong>{count} request(s)</strong></span>
+                      <div className="bar-track">
+                        <div
+                          className="bar-fill fill-primary"
+                          style={{ width: `${leaveStats.total ? (count / leaveStats.total) * 100 : 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Payment Status Distribution */}
+              <div className="chart-card">
+                <h3>💳 Fee Payment Status Distribution</h3>
                 <div className="chart-bar-container">
                   <div className="chart-bar-item">
-                    <span>Paid (₹{feeStats.totalCollected.toLocaleString('en-IN')})</span>
+                    <span>Paid ({feeStats.paidCount})</span>
                     <div className="bar-track">
                       <div
                         className="bar-fill fill-success"
@@ -163,61 +223,20 @@ const Dashboard = ({ updateStatus }) => {
                     </div>
                   </div>
                   <div className="chart-bar-item">
-                    <span>Pending (₹{feeStats.pendingFees.toLocaleString('en-IN')})</span>
+                    <span>Pending ({feeStats.pendingCount})</span>
                     <div className="bar-track">
                       <div
                         className="bar-fill fill-warning"
-                        style={{ width: `${feeStats.totalEntries ? ((feeStats.pendingCount + feeStats.overdueCount) / feeStats.totalEntries) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Complaint Status Bar */}
-              <div className="chart-card">
-                <h3>Complaint Resolution</h3>
-                <div className="chart-bar-container">
-                  <div className="chart-bar-item">
-                    <span>Resolved ({complaintStats.resolved})</span>
-                    <div className="bar-track">
-                      <div
-                        className="bar-fill fill-success"
-                        style={{ width: `${complaintStats.total ? (complaintStats.resolved / complaintStats.total) * 100 : 0}%` }}
+                        style={{ width: `${feeStats.totalEntries ? (feeStats.pendingCount / feeStats.totalEntries) * 100 : 0}%` }}
                       ></div>
                     </div>
                   </div>
                   <div className="chart-bar-item">
-                    <span>Active ({complaintStats.pending + complaintStats.inProgress})</span>
+                    <span>Overdue ({feeStats.overdueCount})</span>
                     <div className="bar-track">
                       <div
                         className="bar-fill fill-danger"
-                        style={{ width: `${complaintStats.total ? ((complaintStats.pending + complaintStats.inProgress) / complaintStats.total) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Leave Status Bar */}
-              <div className="chart-card">
-                <h3>Outstation Leave Status</h3>
-                <div className="chart-bar-container">
-                  <div className="chart-bar-item">
-                    <span>Approved ({leaveStats.approved})</span>
-                    <div className="bar-track">
-                      <div
-                        className="bar-fill fill-primary"
-                        style={{ width: `${leaveStats.total ? (leaveStats.approved / leaveStats.total) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  <div className="chart-bar-item">
-                    <span>Pending ({leaveStats.pending})</span>
-                    <div className="bar-track">
-                      <div
-                        className="bar-fill fill-warning"
-                        style={{ width: `${leaveStats.total ? (leaveStats.pending / leaveStats.total) * 100 : 0}%` }}
+                        style={{ width: `${feeStats.totalEntries ? (feeStats.overdueCount / feeStats.totalEntries) * 100 : 0}%` }}
                       ></div>
                     </div>
                   </div>
@@ -227,7 +246,7 @@ const Dashboard = ({ updateStatus }) => {
           </div>
         )}
 
-        {/* Update Notification */}
+        {/* Update Notification Banner */}
         {updateOccurred && (
           <div className="dashboard-section notification-section update-notification">
             <div className="notification-content">

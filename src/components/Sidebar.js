@@ -7,15 +7,18 @@ const Sidebar = ({ currentPage, onPageChange }) => {
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'rooms', label: 'Rooms', icon: '🏠' },
+    { id: 'rooms', label: 'Rooms / Tables', icon: '🏠' },
     { id: 'namelist', label: 'Name List', icon: '👥' },
-    { id: 'fees', label: 'Hostel Fees', icon: '💵' },
+    { id: 'fees', label: 'Hostel Fees', icon: '💳' },
+    { id: 'leaves', label: 'Leave Requests', icon: '📝' },
+    { id: 'attendance', label: 'Daily Roll Call', icon: '📅' },
+    { id: 'visitors', label: 'Visitor Logs', icon: '🪪' },
     { id: 'complaints', label: 'Complaints', icon: '⚠️' },
-    { id: 'leaves', label: 'Leave Requests', icon: '🏖️' },
     { id: 'reports', label: 'Reports', icon: '📈' },
-    { id: 'history', label: 'History', icon: '📜' },
-    { id: 'settings', label: 'Settings', icon: '⚙️', roles: ['admin'] },
-    { id: 'users', label: 'Users', icon: '👤', roles: ['admin'] }
+    { id: 'history', label: 'List History', icon: '📜' },
+    { id: 'auditlogs', label: 'Audit Logs', icon: '🛡️', roles: ['admin', 'superadmin'] },
+    { id: 'settings', label: 'Settings', icon: '⚙️', roles: ['admin', 'superadmin'] },
+    { id: 'users', label: 'Users', icon: '👤', roles: ['admin', 'superadmin'] }
   ];
 
   const visibleMenuItems = menuItems.filter(item => 
@@ -26,7 +29,7 @@ const Sidebar = ({ currentPage, onPageChange }) => {
     <aside className="sidebar">
       <div className="sidebar-header">
         <h1 className="sidebar-title" style={{ fontSize: '1.2rem', lineHeight: '1.2' }}>DON BOSCO<br/>SKILL MISSION</h1>
-        <p className="sidebar-subtitle">Hostel Room</p>
+        <p className="sidebar-subtitle">Hostel Portal</p>
       </div>
 
       <nav className="sidebar-nav">
@@ -44,7 +47,7 @@ const Sidebar = ({ currentPage, onPageChange }) => {
       </nav>
 
       <div className="sidebar-footer">
-        <p className="sidebar-version">v1.0.0</p>
+        <p className="sidebar-version">v2.0.0 SRS</p>
       </div>
     </aside>
   );

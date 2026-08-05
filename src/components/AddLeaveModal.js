@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import { useAuth } from './AuthContext';
 
@@ -16,6 +16,29 @@ const AddLeaveModal = ({ isOpen, onClose, onSave, people = [], rooms = [] }) => 
 
   const isStudent = currentUser && currentUser.role === 'student';
 
+  // Find logged in student profile
+  const studentProfile = isStudent 
+    ? people.find(p => p.registrationNumber === currentUser.username || p.id === currentUser.id)
+    : null;
+
+  const studentRoom = studentProfile 
+    ? rooms.find(r => r.id === studentProfile.roomId)
+    : null;
+
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        personId: studentProfile ? studentProfile.id : '',
+        leaveDate: '',
+        returnDate: '',
+        reason: '',
+        contactNumber: '',
+        parentContact: ''
+      });
+      setErrors({});
+    }
+  }, [isOpen, studentProfile]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -25,19 +48,16 @@ const AddLeaveModal = ({ isOpen, onClose, onSave, people = [], rooms = [] }) => 
     e.preventDefault();
     const newErrors = {};
 
-    let selectedPerson = null;
-    if (isStudent) {
-      selectedPerson = people.find(p => p.registrationNumber === currentUser.username || p.id === currentUser.id);
-    } else {
-      if (!formData.personId) newErrors.personId = 'Student is required';
+    let selectedPerson = studentProfile;
+    if (!isStudent) {
+      if (!formData.personId) newErrors.personId = 'Student selection is required';
       selectedPerson = people.find(p => p.id === formData.personId);
     }
 
-    if (!formData.leaveDate) newErrors.leaveDate = 'Leave date is required';
-    if (!formData.returnDate) newErrors.returnDate = 'Return date is required';
-    if (!formData.reason.trim()) newErrors.reason = 'Reason is required';
-    if (!formData.contactNumber) newErrors.contactNumber = 'Contact number is required';
-    if (!formData.parentContact) newErrors.parentContact = 'Parent contact is required';
+    if (!formData.leaveDate) newErrors.leaveDate = 'Leave From Date is required';
+    if (!formData.returnDate) newErrors.returnDate = 'Leave To Date is required';
+    if (!formData.reason.trim()) newErrors.reason = 'Reason for leave is required';
+    if (!formData.contactNumber) newErrors.contactNumber = 'Emergency Contact Number is required';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -55,23 +75,34 @@ const AddLeaveModal = ({ isOpen, onClose, onSave, people = [], rooms = [] }) => 
       returnDate: formData.returnDate,
       reason: formData.reason,
       contactNumber: formData.contactNumber,
-      parentContact: formData.parentContact
+      parentContact: formData.parentContact || formData.contactNumber
     });
 
-    setFormData({
-      personId: '',
-      leaveDate: '',
-      returnDate: '',
-      reason: '',
-      contactNumber: '',
-      parentContact: ''
-    });
-    setErrors({});
+    onClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Apply for Leave" size="medium">
+    <Modal isOpen={isOpen} onClose={onClose} title="📝 Submit Outstation Leave Request" size="medium">
       <form onSubmit={handleSubmit} className="form">
+        {isStudent && studentProfile && (
+          <div className="form-group readonly-group" style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', fontSize: '0.85rem' }}>
+              <div>
+                <strong style={{ color: '#475569', display: 'block', fontSize: '0.75rem' }}>Student Name:</strong>
+                <span>{studentProfile.name}</span>
+              </div>
+              <div>
+                <strong style={{ color: '#475569', display: 'block', fontSize: '0.75rem' }}>Registration #:</strong>
+                <span>{studentProfile.registrationNumber}</span>
+              </div>
+              <div>
+                <strong style={{ color: '#475569', display: 'block', fontSize: '0.75rem' }}>Room #:</strong>
+                <span>{studentRoom ? `Room ${studentRoom.roomNumber}` : 'N/A'}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {!isStudent && (
           <div className="form-group">
             <label className="form-label required">Student</label>
@@ -94,7 +125,7 @@ const AddLeaveModal = ({ isOpen, onClose, onSave, people = [], rooms = [] }) => 
 
         <div className="form-row">
           <div className="form-group">
-            <label className="form-label required">Leave Date</label>
+            <label className="form-label required">Leave From Date</label>
             <input
               type="date"
               name="leaveDate"
@@ -106,7 +137,7 @@ const AddLeaveModal = ({ isOpen, onClose, onSave, people = [], rooms = [] }) => 
           </div>
 
           <div className="form-group">
-            <label className="form-label required">Return Date</label>
+            <label className="form-label required">Leave To Date</label>
             <input
               type="date"
               name="returnDate"
@@ -120,7 +151,7 @@ const AddLeaveModal = ({ isOpen, onClose, onSave, people = [], rooms = [] }) => 
 
         <div className="form-row">
           <div className="form-group">
-            <label className="form-label required">Student Contact #</label>
+            <label className="form-label required">Emergency Contact Number</label>
             <input
               type="text"
               name="contactNumber"
@@ -133,16 +164,15 @@ const AddLeaveModal = ({ isOpen, onClose, onSave, people = [], rooms = [] }) => 
           </div>
 
           <div className="form-group">
-            <label className="form-label required">Parent Contact #</label>
+            <label className="form-label">Parent / Guardian Contact (Optional)</label>
             <input
               type="text"
               name="parentContact"
               value={formData.parentContact}
               onChange={handleChange}
               placeholder="e.g. 9876543211"
-              className={`form-input ${errors.parentContact ? 'error' : ''}`}
+              className="form-input"
             />
-            {errors.parentContact && <span className="error-message">{errors.parentContact}</span>}
           </div>
         </div>
 
@@ -153,7 +183,7 @@ const AddLeaveModal = ({ isOpen, onClose, onSave, people = [], rooms = [] }) => 
             rows="3"
             value={formData.reason}
             onChange={handleChange}
-            placeholder="Explain reason for leave..."
+            placeholder="Explain detailed reason for outstation leave..."
             className={`form-textarea ${errors.reason ? 'error' : ''}`}
           ></textarea>
           {errors.reason && <span className="error-message">{errors.reason}</span>}
@@ -164,7 +194,7 @@ const AddLeaveModal = ({ isOpen, onClose, onSave, people = [], rooms = [] }) => 
             Cancel
           </button>
           <button type="submit" className="btn btn-primary">
-            Submit Leave Request
+            Submit Request
           </button>
         </div>
       </form>

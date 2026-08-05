@@ -76,6 +76,24 @@ export const AuthProvider = ({ children }) => {
             }
           }
         }
+        return { success: false, message: 'Invalid registration number or date of birth.' };
+      }
+
+      // Admin / staff fallback to localStorage stored users
+      const storedUsers = localStorage.getItem('rnl_users');
+      if (storedUsers) {
+        const users = JSON.parse(storedUsers);
+        const user = users.find(
+          u => u.username === username && u.password === password &&
+               (!expectedRole || u.role === expectedRole)
+        );
+        if (user) {
+          const userObj = { id: user.id, username: user.username, role: user.role, name: user.name || user.username };
+          setCurrentUser(userObj);
+          localStorage.setItem('rnl_current_user', JSON.stringify(userObj));
+          return { success: true };
+        }
+        return { success: false, message: 'Invalid username or password.' };
       }
 
       return { success: false, message: 'Server error. Is the backend running?' };

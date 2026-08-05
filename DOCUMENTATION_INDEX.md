@@ -17,6 +17,8 @@ Welcome to the comprehensive documentation suite for the **Room Name List Automa
 | **[RENDER_DEPLOYMENT.md](file:///c:/Users/suren/Dropbox/Dacuments/Study%20Metirials/Automation/RENDER_DEPLOYMENT.md)** | Cloud Engineers & DevOps | Zero-config Render deployment guide, environment settings, build scripts, health checks. |
 | **[PROJECT_SUMMARY.md](file:///c:/Users/suren/Dropbox/Dacuments/Study%20Metirials/Automation/PROJECT_SUMMARY.md)** | Project Managers & Stakeholders | Deliverables inventory, lines of code breakdown, component list, feature status metrics. |
 | **[DELIVERABLES_CHECKLIST.md](file:///c:/Users/suren/Dropbox/Dacuments/Study%20Metirials/Automation/DELIVERABLES_CHECKLIST.md)** | Auditors & Tech Leads | Compliance checklist, requirement matrix, verification audit details. |
+| **[SOFTWARE_REQUIREMENT_SPECIFICATION.md](file:///c:/Users/suren/Dropbox/Dacuments/Study%20Metirials/Automation/SOFTWARE_REQUIREMENT_SPECIFICATION.md)** | Architects & Project Evaluators | Master 20-section SRS document detailing 3-tier architecture, 6 user roles, functional & non-functional requirements, data dictionary, security policies, and future scope. |
+| **[REFECTORY_ALLOCATION_AUG_2026.md](file:///c:/Users/suren/Dropbox/Dacuments/Study%20Metirials/Automation/REFECTORY_ALLOCATION_AUG_2026.md)** | Hostel Wardens & Students | Don Bosco Skill Mission Bengaluru 95 student refectory table allocations & User ID mappings. |
 
 ---
 
