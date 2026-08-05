@@ -1,85 +1,91 @@
 .sidebar {
-  width: 250px;
+  width: 260px;
   height: 100vh;
-  background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);
-  color: white;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
   padding: 0;
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
   position: fixed;
   left: 0;
   top: 0;
+  z-index: 100;
   overflow-y: auto;
 }
 
 .sidebar-header {
-  padding: 2rem 1.5rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 1.75rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   text-align: center;
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
 }
 
 .sidebar-title {
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 800;
   margin: 0;
-  letter-spacing: 1px;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .sidebar-subtitle {
-  font-size: 0.85rem;
-  opacity: 0.8;
-  margin: 0.5rem 0 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #818cf8;
+  letter-spacing: 0.1em;
+  margin: 0.35rem 0 0 0;
+  text-transform: uppercase;
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: 1rem 0;
+  padding: 1rem 0.75rem;
   display: flex;
   flex-direction: column;
+  gap: 0.35rem;
 }
 
 .nav-item {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.8);
-  padding: 1rem 1.5rem;
-  font-size: 1rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  padding: 0.75rem 1rem;
+  font-size: 0.92rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  transition: all 0.3s ease;
-  position: relative;
-  margin: 0.25rem 0.5rem;
-  border-radius: 8px;
+  gap: 0.85rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 10px;
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(3px);
 }
 
 .nav-item.active {
-  background: rgba(255, 255, 255, 0.25);
-  color: white;
-  font-weight: 600;
-}
-
-.nav-item.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: white;
-  border-radius: 0 4px 4px 0;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(79, 70, 229, 0.25) 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border: 1px solid rgba(129, 140, 248, 0.4);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
 }
 
 .nav-icon {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   min-width: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-label {
@@ -87,99 +93,13 @@
 }
 
 .sidebar-footer {
-  padding: 1rem 1.5rem;
-  border-top: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   text-align: center;
 }
 
 .sidebar-version {
   font-size: 0.75rem;
-  opacity: 0.6;
+  color: #64748b;
   margin: 0;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 70px;
-  }
-
-  .sidebar-header {
-    padding: 1.5rem 0;
-  }
-
-  .sidebar-title {
-    font-size: 1.2rem;
-  }
-
-  .sidebar-subtitle {
-    display: none;
-  }
-
-  .nav-item {
-    padding: 1rem 0;
-    justify-content: center;
-  }
-
-  .nav-label {
-    display: none;
-  }
-
-  .nav-icon {
-    font-size: 1.5rem;
-  }
-
-  .sidebar-version {
-    display: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    flex-direction: row;
-    position: relative;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .sidebar-header {
-    padding: 0.75rem 1rem;
-    border-bottom: none;
-    border-right: 2px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .sidebar-title {
-    font-size: 1rem;
-  }
-
-  .sidebar-nav {
-    flex-direction: row;
-    padding: 0;
-  }
-
-  .nav-item {
-    flex: 1;
-    margin: 0;
-    border-radius: 0;
-    padding: 0.75rem;
-  }
-
-  .nav-item.active::before {
-    display: none;
-  }
-
-  .nav-item.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: white;
-  }
-
-  .sidebar-footer {
-    display: none;
-  }
 }
