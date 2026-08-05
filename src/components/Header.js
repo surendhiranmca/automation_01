@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import NotificationCenter from './NotificationCenter';
 import './Header.css';
 
 const Header = ({ title, updateStatus }) => {
   const { currentUser, logout } = useAuth();
+  const [theme, setTheme] = useState(() => localStorage.getItem('app_theme') || 'dark');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('app_theme', theme);
+  }, [theme]);
+
+  const handleThemeChange = (e) => {
+    setTheme(e.target.value);
+  };
+
   const getStatusColor = () => {
     if (!updateStatus) return 'gray';
     if (updateStatus.isOverdue) return 'red';
@@ -26,6 +37,17 @@ const Header = ({ title, updateStatus }) => {
       </div>
 
       <div className="header-right">
+        {/* Dynamic UI Template Switcher */}
+        <div className="theme-switcher-container">
+          <label className="theme-label font-sm">🎨 Template: </label>
+          <select value={theme} onChange={handleThemeChange} className="theme-select-input">
+            <option value="dark">🌙 Dark Sapphire Glass</option>
+            <option value="light">☀️ Clean Executive Light</option>
+            <option value="cyberpunk">🦄 Cyberpunk Neon Violet</option>
+            <option value="emerald">🌲 Emerald Forest Theme</option>
+          </select>
+        </div>
+
         <NotificationCenter />
         
         {currentUser && (
@@ -36,6 +58,7 @@ const Header = ({ title, updateStatus }) => {
             <button className="logout-btn" onClick={logout}>Logout</button>
           </div>
         )}
+
         <div className={`update-badge update-badge-${getStatusColor()}`}>
           {getStatusText()}
         </div>

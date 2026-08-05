@@ -31,6 +31,32 @@
   gap: 1.25rem;
 }
 
+.theme-switcher-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card-bg);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+}
+
+.theme-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.theme-select-input {
+  background: transparent;
+  color: var(--text-dark);
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+}
+
 .header-user-info {
   display: flex;
   align-items: center;
