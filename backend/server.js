@@ -17,10 +17,159 @@ const DB_PORT = process.env.MYSQL_PORT || process.env.DB_PORT || 3306;
 
 // Fallback database for instant deployment when external MySQL is not configured
 let useFallbackDb = false;
+
+const initialRooms = [
+  { id: 'room-tbl-1', roomNumber: 'Table 1', roomName: 'Refectory Block - Table 1', capacity: 12, createdDate: '2026-08-05', isActive: true },
+  { id: 'room-tbl-2', roomNumber: 'Table 2', roomName: 'Refectory Block - Table 2', capacity: 12, createdDate: '2026-08-05', isActive: true },
+  { id: 'room-tbl-3', roomNumber: 'Table 3', roomName: 'Refectory Block - Table 3', capacity: 12, createdDate: '2026-08-05', isActive: true },
+  { id: 'room-tbl-4', roomNumber: 'Table 4', roomName: 'Refectory Block - Table 4', capacity: 12, createdDate: '2026-08-05', isActive: true },
+  { id: 'room-tbl-0', roomNumber: 'Table 0 (Extra)', roomName: 'Refectory Block - Table 0 Extra', capacity: 12, createdDate: '2026-08-05', isActive: true },
+  { id: 'room-tbl-5', roomNumber: 'Table 5', roomName: 'Refectory Block - Table 5', capacity: 12, createdDate: '2026-08-05', isActive: true },
+  { id: 'room-tbl-6', roomNumber: 'Table 6', roomName: 'Refectory Block - Table 6', capacity: 12, createdDate: '2026-08-05', isActive: true },
+  { id: 'room-tbl-7', roomNumber: 'Table 7', roomName: 'Refectory Block - Table 7', capacity: 12, createdDate: '2026-08-05', isActive: true },
+  { id: 'room-tbl-8', roomNumber: 'Table 8', roomName: 'Refectory Block - Table 8', capacity: 12, createdDate: '2026-08-05', isActive: true }
+];
+
+const rawAllocations = [
+  // Table 1
+  { name: 'Tamilmani b.m', roomId: 'room-tbl-1', roomNum: 'Table 1' },
+  { name: 'Iniyan C', roomId: 'room-tbl-1', roomNum: 'Table 1' },
+  { name: 'Vimalarul francis s', roomId: 'room-tbl-1', roomNum: 'Table 1' },
+  { name: 'Arish Paston C', roomId: 'room-tbl-1', roomNum: 'Table 1' },
+  { name: 'Santhosh', roomId: 'room-tbl-1', roomNum: 'Table 1' },
+  { name: 'Montfort', roomId: 'room-tbl-1', roomNum: 'Table 1' },
+  { name: 'SUBITH', roomId: 'room-tbl-1', roomNum: 'Table 1' },
+  { name: 'Carmellus Lakashiang', roomId: 'room-tbl-1', roomNum: 'Table 1' },
+  { name: 'Kingsly a', roomId: 'room-tbl-1', roomNum: 'Table 1' },
+  { name: 'Veeramani', roomId: 'room-tbl-1', roomNum: 'Table 1' },
+  { name: 'Haarris Augusta', roomId: 'room-tbl-1', roomNum: 'Table 1' },
+  { name: 'Benadict', roomId: 'room-tbl-1', roomNum: 'Table 1' },
+
+  // Table 2
+  { name: 'Robertstar Kharkongor', roomId: 'room-tbl-2', roomNum: 'Table 2' },
+  { name: 'Rohit', roomId: 'room-tbl-2', roomNum: 'Table 2' },
+  { name: 'Sameer', roomId: 'room-tbl-2', roomNum: 'Table 2' },
+  { name: 'Praveen samuuel a', roomId: 'room-tbl-2', roomNum: 'Table 2' },
+  { name: 'Perfectson Marthong', roomId: 'room-tbl-2', roomNum: 'Table 2' },
+  { name: 'Sonu Joseph S', roomId: 'room-tbl-2', roomNum: 'Table 2' },
+  { name: 'Ajay Kumar', roomId: 'room-tbl-2', roomNum: 'Table 2' },
+  { name: 'Hilary Lanka', roomId: 'room-tbl-2', roomNum: 'Table 2' },
+  { name: 'Balaji', roomId: 'room-tbl-2', roomNum: 'Table 2' },
+  { name: 'Arun', roomId: 'room-tbl-2', roomNum: 'Table 2' },
+  { name: 'Ram Charan', roomId: 'room-tbl-2', roomNum: 'Table 2' },
+  { name: 'Winston', roomId: 'room-tbl-2', roomNum: 'Table 2' },
+
+  // Table 3
+  { name: 'Surendhiran', roomId: 'room-tbl-3', roomNum: 'Table 3' },
+  { name: 'Ribok Nongspung', roomId: 'room-tbl-3', roomNum: 'Table 3' },
+  { name: 'Joel', roomId: 'room-tbl-3', roomNum: 'Table 3' },
+  { name: 'Dijoy Marak', roomId: 'room-tbl-3', roomNum: 'Table 3' },
+  { name: 'Michael', roomId: 'room-tbl-3', roomNum: 'Table 3' },
+  { name: 'Don bosco p', roomId: 'room-tbl-3', roomNum: 'Table 3' },
+  { name: 'L Ignatius Kadete', roomId: 'room-tbl-3', roomNum: 'Table 3' },
+  { name: 'Vishwa S', roomId: 'room-tbl-3', roomNum: 'Table 3' },
+  { name: 'Diago Armando Lamin', roomId: 'room-tbl-3', roomNum: 'Table 3' },
+  { name: 'Arun Vineeth', roomId: 'room-tbl-3', roomNum: 'Table 3' },
+  { name: 'Sam J Prakash Roy', roomId: 'room-tbl-3', roomNum: 'Table 3' },
+  { name: 'Ryngkatborlang Sohtun', roomId: 'room-tbl-3', roomNum: 'Table 3' },
+
+  // Table 4
+  { name: 'Asrar Ahamed', roomId: 'room-tbl-4', roomNum: 'Table 4' },
+  { name: 'Pavankalyan', roomId: 'room-tbl-4', roomNum: 'Table 4' },
+  { name: 'Tejas MA', roomId: 'room-tbl-4', roomNum: 'Table 4' },
+  { name: 'Rohit s', roomId: 'room-tbl-4', roomNum: 'Table 4' },
+  { name: 'Visazoto Savi', roomId: 'room-tbl-4', roomNum: 'Table 4' },
+  { name: 'Allwinson Lyngdoh', roomId: 'room-tbl-4', roomNum: 'Table 4' },
+  { name: 'Hendry thomas a', roomId: 'room-tbl-4', roomNum: 'Table 4' },
+  { name: 'Gothandam', roomId: 'room-tbl-4', roomNum: 'Table 4' },
+  { name: 'Edwin amburose s', roomId: 'room-tbl-4', roomNum: 'Table 4' },
+  { name: 'Madhavan', roomId: 'room-tbl-4', roomNum: 'Table 4' },
+  { name: 'Jeffery', roomId: 'room-tbl-4', roomNum: 'Table 4' },
+  { name: 'Hameisha Tyngkan', roomId: 'room-tbl-4', roomNum: 'Table 4' },
+
+  // Table 0 (Extra)
+  { name: 'Jeron j', roomId: 'room-tbl-0', roomNum: 'Table 0 (Extra)' },
+  { name: 'Felix raja s', roomId: 'room-tbl-0', roomNum: 'Table 0 (Extra)' },
+  { name: 'Syed farhan', roomId: 'room-tbl-0', roomNum: 'Table 0 (Extra)' },
+
+  // Table 5
+  { name: 'Rakshana', roomId: 'room-tbl-5', roomNum: 'Table 5' },
+  { name: 'Darathi', roomId: 'room-tbl-5', roomNum: 'Table 5' },
+  { name: 'Stacy Reamei', roomId: 'room-tbl-5', roomNum: 'Table 5' },
+  { name: 'Jacinta Susngi', roomId: 'room-tbl-5', roomNum: 'Table 5' },
+  { name: 'Viccuna L. Kadete', roomId: 'room-tbl-5', roomNum: 'Table 5' },
+  { name: 'Ramyowon Siro', roomId: 'room-tbl-5', roomNum: 'Table 5' },
+  { name: 'Serene', roomId: 'room-tbl-5', roomNum: 'Table 5' },
+  { name: 'Kasarika Lynthong', roomId: 'room-tbl-5', roomNum: 'Table 5' },
+  { name: 'Saini Chyrmang', roomId: 'room-tbl-5', roomNum: 'Table 5' },
+  { name: 'Pynsngewbha Shylla', roomId: 'room-tbl-5', roomNum: 'Table 5' },
+  { name: 'Risolda Nongrum', roomId: 'room-tbl-5', roomNum: 'Table 5' },
+  { name: 'Sathya jothi', roomId: 'room-tbl-5', roomNum: 'Table 5' },
+
+  // Table 6
+  { name: 'Swathi', roomId: 'room-tbl-6', roomNum: 'Table 6' },
+  { name: 'Ibadawanshwa Shylla', roomId: 'room-tbl-6', roomNum: 'Table 6' },
+  { name: 'Skillfully Rynghang', roomId: 'room-tbl-6', roomNum: 'Table 6' },
+  { name: 'Kaviyadharshini R', roomId: 'room-tbl-6', roomNum: 'Table 6' },
+  { name: 'Jenifer Jones', roomId: 'room-tbl-6', roomNum: 'Table 6' },
+  { name: 'Arockia Jenifer', roomId: 'room-tbl-6', roomNum: 'Table 6' },
+  { name: 'Afrin Banu', roomId: 'room-tbl-6', roomNum: 'Table 6' },
+  { name: 'Alphrinda Nongrum', roomId: 'room-tbl-6', roomNum: 'Table 6' },
+  { name: 'Rinmichan Siro', roomId: 'room-tbl-6', roomNum: 'Table 6' },
+  { name: 'Ibalahun Wahlang', roomId: 'room-tbl-6', roomNum: 'Table 6' },
+  { name: 'Jamila shagana', roomId: 'room-tbl-6', roomNum: 'Table 6' },
+  { name: 'Mahadharshini', roomId: 'room-tbl-6', roomNum: 'Table 6' },
+
+  // Table 7
+  { name: 'Medarita Lawram', roomId: 'room-tbl-7', roomNum: 'Table 7' },
+  { name: 'Keerthana', roomId: 'room-tbl-7', roomNum: 'Table 7' },
+  { name: 'Merlin', roomId: 'room-tbl-7', roomNum: 'Table 7' },
+  { name: 'Daphishisha Lyngdoh', roomId: 'room-tbl-7', roomNum: 'Table 7' },
+  { name: 'Monaliza Dkhar Sawian', roomId: 'room-tbl-7', roomNum: 'Table 7' },
+  { name: 'Sincerity Shabong', roomId: 'room-tbl-7', roomNum: 'Table 7' },
+  { name: 'Priyanka', roomId: 'room-tbl-7', roomNum: 'Table 7' },
+  { name: 'Lapynbiang Khyriem', roomId: 'room-tbl-7', roomNum: 'Table 7' },
+  { name: 'Emideimaya Dkhar', roomId: 'room-tbl-7', roomNum: 'Table 7' },
+  { name: 'Vanesa Mukhim', roomId: 'room-tbl-7', roomNum: 'Table 7' },
+  { name: 'Amalin', roomId: 'room-tbl-7', roomNum: 'Table 7' },
+  { name: 'Aihun Ryngkhlem', roomId: 'room-tbl-7', roomNum: 'Table 7' },
+
+  // Table 8
+  { name: 'Amala Rakkini', roomId: 'room-tbl-8', roomNum: 'Table 8' },
+  { name: 'Peaceful Lyngdoh', roomId: 'room-tbl-8', roomNum: 'Table 8' },
+  { name: 'Baiamomlang Lamare', roomId: 'room-tbl-8', roomNum: 'Table 8' },
+  { name: 'Banasha', roomId: 'room-tbl-8', roomNum: 'Table 8' },
+  { name: 'Judit susngi', roomId: 'room-tbl-8', roomNum: 'Table 8' },
+  { name: 'Sabitha Nayaki', roomId: 'room-tbl-8', roomNum: 'Table 8' },
+  { name: 'Jancy', roomId: 'room-tbl-8', roomNum: 'Table 8' },
+  { name: 'Roslin', roomId: 'room-tbl-8', roomNum: 'Table 8' }
+];
+
+const initialPeople = rawAllocations.map((item, idx) => {
+  const numStr = String(idx + 1).padStart(4, '0');
+  return {
+    id: `person-${numStr}`,
+    name: item.name,
+    registrationNumber: `DBSM2026${numStr}`,
+    roomId: item.roomId,
+    roomNumber: item.roomNum,
+    course: 'Skill Development Course',
+    dob: '2003-08-15',
+    assignedDate: '2026-08-05',
+    listPeriod: '2026-08-05',
+    status: 'active'
+  };
+});
+
 let fallbackDb = {
   users: [{ id: 'admin-001', username: 'admin', password: 'admin', role: 'admin' }],
-  rooms: [],
-  people: []
+  rooms: initialRooms,
+  people: initialPeople,
+  leaves: [],
+  fees: [],
+  visitors: [],
+  attendance: [],
+  auditLogs: []
 };
 
 let db = null;
@@ -183,6 +332,27 @@ app.post('/api/auth/student-login', (req, res) => {
     } else {
       res.json({ success: false, message: 'Student not found' });
     }
+  });
+});
+
+// --- API HEALTH & STATUS INDEX ---
+app.get('/api', (req, res) => {
+  res.json({
+    status: 'online',
+    system: 'Don Bosco Skill Mission Hostel Automation API',
+    version: '2.0.0',
+    mode: useFallbackDb || !db ? 'In-Memory Fallback Storage' : 'MySQL Database',
+    endpoints: [
+      '/api/auth/login',
+      '/api/auth/student-login',
+      '/api/rooms',
+      '/api/people',
+      '/api/leaves',
+      '/api/fees',
+      '/api/visitors',
+      '/api/attendance',
+      '/api/audit-logs'
+    ]
   });
 });
 
@@ -425,6 +595,31 @@ app.get('/api/audit-logs', (req, res) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(results);
   });
+});
+
+// --- API HEALTH & STATUS ENDPOINTS ---
+app.get(['/api', '/api/'], (req, res) => {
+  res.json({
+    status: 'online',
+    system: 'Don Bosco Skill Mission Hostel Automation API',
+    version: '2.0.0',
+    mode: useFallbackDb || !db ? 'In-Memory Fallback Storage' : 'MySQL Database',
+    endpoints: [
+      '/api/auth/login',
+      '/api/auth/student-login',
+      '/api/rooms',
+      '/api/people',
+      '/api/leaves',
+      '/api/fees',
+      '/api/visitors',
+      '/api/attendance',
+      '/api/audit-logs'
+    ]
+  });
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
 });
 
 // --- SERVE REACT STATIC BUILD IN PRODUCTION ON RENDER ---

@@ -5,7 +5,7 @@ import './Header.css';
 
 const Header = ({ title, updateStatus }) => {
   const { currentUser, logout } = useAuth();
-  const [theme, setTheme] = useState(() => localStorage.getItem('app_theme') || 'dark');
+  const [theme, setTheme] = useState(() => localStorage.getItem('app_theme') || 'light');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
