@@ -125,7 +125,7 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
 
   // Generate live real-time UPI deep-link QR code URL with timestamp token
   const activeUpi = upiId || 'surendhiransurendhiran645@oksbi';
-  const upiDeepLink = `upi://pay?pa=${encodeURIComponent(activeUpi)}&pn=${encodeURIComponent(feeRecord.personName || 'Don Bosco Hostel')}&am=${totalPayable}&cu=INR&tn=${encodeURIComponent('Hostel Fee ' + (feeRecord.month || 'Aug 2026'))}`;
+  const upiDeepLink = `upi://pay?pa=${encodeURIComponent(activeUpi)}&pn=${encodeURIComponent('DBSM hostel fee')}&am=${totalPayable}&cu=INR&tn=${encodeURIComponent('Hostel Fee ' + (feeRecord.month || 'Aug 2026'))}`;
   const liveQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiDeepLink + '&t=' + qrToken)}`;
 
   const handleSubmit = (e) => {
