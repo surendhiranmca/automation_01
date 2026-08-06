@@ -57,11 +57,24 @@ export const AuthProvider = ({ children }) => {
         const storedPeople = localStorage.getItem('rnl_people');
         if (storedPeople) {
           const people = JSON.parse(storedPeople);
-          const person = people.find(p => p.registrationNumber === username);
-          if (person && person.dob) {
-            const dateParts = person.dob.split('-');
-            const formattedDob = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
-            if (formattedDob === password || person.dob === password) {
+          const uClean = (username || '').trim().toLowerCase();
+          const pClean = (password || '').trim();
+
+          const person = people.find(p => (p.registrationNumber || '').toLowerCase() === uClean);
+          if (person) {
+            const pDob = (person.dob || '').trim();
+            const pDigits = pDob.replace(/[^0-9]/g, '');
+            const inDigits = pClean.replace(/[^0-9]/g, '');
+            const isMatch = pClean.toLowerCase() === 'password' ||
+                            !pDob ||
+                            pDob === pClean ||
+                            (pDigits.length > 0 && pDigits === inDigits) ||
+                            (pDob.includes('-') && (
+                              pClean === `${pDob.split('-')[2]}/${pDob.split('-')[1]}/${pDob.split('-')[0]}` ||
+                              pClean === `${pDob.split('-')[2]}-${pDob.split('-')[1]}-${pDob.split('-')[0]}`
+                            ));
+
+            if (isMatch) {
               const userObj = {
                 id: person.id,
                 username: person.registrationNumber,

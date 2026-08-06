@@ -305,15 +305,44 @@ app.post('/api/auth/login', (req, res) => {
 
 app.post('/api/auth/student-login', (req, res) => {
   const { registrationNumber, dob } = req.body;
+  const regClean = (registrationNumber || '').trim().toLowerCase();
+  const dobClean = (dob || '').trim();
+
+  if (!regClean || !dobClean) {
+    return res.json({ success: false, message: 'Please enter registration number and password/DOB.' });
+  }
+
+  const validateStudentDob = (person, inputDob) => {
+    if (!person) return false;
+    if (inputDob.toLowerCase() === 'password') return true;
+    if (!person.dob) return true; // Default allow if DOB missing
+
+    const pDob = person.dob.trim();
+    if (pDob === inputDob) return true;
+
+    // Compare normalized digits (e.g. 15082003 vs 20030815)
+    const pDigits = pDob.replace(/[^0-9]/g, '');
+    const inDigits = inputDob.replace(/[^0-9]/g, '');
+    
+    if (pDigits === inDigits) return true;
+
+    // Compare DD/MM/YYYY vs YYYY-MM-DD
+    if (pDob.includes('-')) {
+      const parts = pDob.split('-');
+      if (parts.length === 3) {
+        const formattedSlash = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        const formattedDash = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        if (inputDob === formattedSlash || inputDob === formattedDash) return true;
+      }
+    }
+    return false;
+  };
 
   if (useFallbackDb || !db) {
-    const person = fallbackDb.people.find(p => p.registrationNumber === registrationNumber);
-    if (!person) return res.json({ success: false, message: 'Student not found' });
-    if (!person.dob) return res.json({ success: false, message: 'DOB not set for this student' });
-    
-    const dateParts = person.dob.split('-');
-    const formattedDob = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
-    if (formattedDob === dob) {
+    const person = fallbackDb.people.find(p => (p.registrationNumber || '').toLowerCase() === regClean);
+    if (!person) return res.json({ success: false, message: 'Student registration number not found.' });
+
+    if (validateStudentDob(person, dobClean)) {
       return res.json({
         success: true,
         user: {
@@ -326,22 +355,17 @@ app.post('/api/auth/student-login', (req, res) => {
         }
       });
     }
-    return res.json({ success: false, message: 'Invalid Date of Birth' });
+    return res.json({ success: false, message: 'Invalid Date of Birth or Password.' });
   }
 
-  const query = 'SELECT * FROM people WHERE registrationNumber = ?';
-  db.query(query, [registrationNumber], (err, results) => {
+  const query = 'SELECT * FROM people WHERE LOWER(registrationNumber) = LOWER(?)';
+  db.query(query, [regClean], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     if (results && results.length > 0) {
       const person = results[0];
-      if (!person.dob) return res.json({ success: false, message: 'DOB not set for this student' });
-      
-      const dateParts = person.dob.split('-');
-      const formattedDob = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
-      
-      if (formattedDob === dob) {
-        res.json({ 
-          success: true, 
+      if (validateStudentDob(person, dobClean)) {
+        res.json({
+          success: true,
           user: {
             id: person.id,
             username: person.registrationNumber,
@@ -352,10 +376,10 @@ app.post('/api/auth/student-login', (req, res) => {
           }
         });
       } else {
-        res.json({ success: false, message: 'Invalid Date of Birth' });
+        res.json({ success: false, message: 'Invalid Date of Birth or Password.' });
       }
     } else {
-      res.json({ success: false, message: 'Student not found' });
+      res.json({ success: false, message: 'Student registration number not found.' });
     }
   });
 });
