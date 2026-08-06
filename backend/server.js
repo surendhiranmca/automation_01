@@ -8,6 +8,31 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// --- API HEALTH & STATUS ENDPOINTS ---
+app.get(['/api', '/api/', '/api/status', '/api/info'], (req, res) => {
+  res.json({
+    status: 'online',
+    system: 'Don Bosco Skill Mission Hostel Automation API',
+    version: '2.0.0',
+    mode: useFallbackDb || !db ? 'In-Memory Fallback Storage' : 'MySQL Database',
+    endpoints: [
+      '/api/auth/login',
+      '/api/auth/student-login',
+      '/api/rooms',
+      '/api/people',
+      '/api/leaves',
+      '/api/fees',
+      '/api/visitors',
+      '/api/attendance',
+      '/api/audit-logs'
+    ]
+  });
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
+
 // Database connection parameters (Environment variables supported for Render deployment)
 const DB_HOST = process.env.MYSQL_HOST || process.env.DB_HOST || 'localhost';
 const DB_USER = process.env.MYSQL_USER || process.env.DB_USER || 'root';
