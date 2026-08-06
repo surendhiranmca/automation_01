@@ -35,10 +35,7 @@ function AppContent() {
   // Initialize storage on app mount
   useEffect(() => {
     initializeStorage();
-    const existingPeople = JSON.parse(localStorage.getItem('rnl_people') || '[]');
-    if (!existingPeople || existingPeople.length < 95) {
-      initializeSampleData();
-    }
+    initializeSampleData();
     setAppReady(true);
   }, []);
 

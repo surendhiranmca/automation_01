@@ -150,11 +150,11 @@ const Dashboard = ({ updateStatus }) => {
               color="success"
             />
             <DashboardCard
-              title="Overdue Fees"
-              value={`₹${feeStats.overdueFees.toLocaleString('en-IN')}`}
-              icon="🚨"
-              description={`${feeStats.overdueCount} overdue dues + fines`}
-              color="danger"
+              title="Total Fee Entries"
+              value={feeStats.totalEntries}
+              icon="📋"
+              description="Active fee accounts"
+              color="primary"
             />
             <DashboardCard
               title="Total Hostel Revenue"
@@ -230,15 +230,6 @@ const Dashboard = ({ updateStatus }) => {
                       <div
                         className="bar-fill fill-warning"
                         style={{ width: `${feeStats.totalEntries ? (feeStats.pendingCount / feeStats.totalEntries) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  <div className="chart-bar-item">
-                    <span>Overdue ({feeStats.overdueCount})</span>
-                    <div className="bar-track">
-                      <div
-                        className="bar-fill fill-danger"
-                        style={{ width: `${feeStats.totalEntries ? (feeStats.overdueCount / feeStats.totalEntries) * 100 : 0}%` }}
                       ></div>
                     </div>
                   </div>

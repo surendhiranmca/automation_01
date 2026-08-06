@@ -198,15 +198,9 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
             <span>Base Fee:</span>
             <span>₹{baseAmount.toLocaleString('en-IN')}</span>
           </div>
-          {lateFee > 0 && (
-            <div className="summary-row late-fee-row">
-              <span>Late Fine (Overdue):</span>
-              <span className="text-danger">+ ₹{lateFee.toLocaleString('en-IN')}</span>
-            </div>
-          )}
           <div className="summary-row total-row">
             <span>Total Payable Amount:</span>
-            <span className="total-amount">₹{totalPayable.toLocaleString('en-IN')}</span>
+            <span className="total-amount">₹{baseAmount.toLocaleString('en-IN')}</span>
           </div>
         </div>
 

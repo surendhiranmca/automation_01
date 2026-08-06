@@ -99,8 +99,7 @@ const Fees = () => {
     const today = new Date(new Date().toISOString().split('T')[0]).getTime();
     const diff = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
 
-    if (diff < 0) return `${Math.abs(diff)} days overdue`;
-    if (diff === 0) return 'Due Today';
+    if (diff <= 0) return 'Due Today';
     return `${diff} days remaining`;
   };
 
@@ -111,8 +110,7 @@ const Fees = () => {
       'Room Number': f.roomNumber,
       'Fee Type': f.feeType || 'Hostel Fee',
       'Base Amount (₹)': f.amount,
-      'Late Fee (₹)': f.lateFee || 0,
-      'Total Payable (₹)': f.totalPayable || f.amount,
+      'Total Payable (₹)': f.amount,
       'Paid Amount (₹)': f.paidAmount,
       'Due Date': f.dueDate,
       'Status': f.status,
@@ -127,7 +125,7 @@ const Fees = () => {
       <div className="fees-header">
         <div>
           <h1>💳 Hostel Fee & Online Payment Desk</h1>
-          <p className="fees-subtitle">Issue fee requests, track overdue dues, complete online payments, and download receipts</p>
+          <p className="fees-subtitle">Issue fee requests, track pending dues, complete online payments, and download receipts</p>
         </div>
         <div className="fees-header-actions">
           <button className="btn btn-secondary" onClick={handleExportCSV}>
@@ -155,10 +153,10 @@ const Fees = () => {
           trend="warning"
         />
         <DashboardCard
-          title="Overdue Dues"
-          value={`₹${stats.overdueFees.toLocaleString('en-IN')}`}
-          icon="🚨"
-          trend="negative"
+          title="Paid Entries"
+          value={stats.paidCount}
+          icon="✅"
+          trend="positive"
         />
         <DashboardCard
           title="Total Fee Entries"
@@ -178,7 +176,7 @@ const Fees = () => {
         <div className="filter-group">
           <label>Status Filter: </label>
           <div className="status-tabs">
-            {['All', 'Pending', 'Paid', 'Overdue'].map((st) => (
+            {['All', 'Pending', 'Paid'].map((st) => (
               <button
                 key={st}
                 className={`tab-btn ${statusFilter === st ? 'active' : ''}`}
@@ -199,7 +197,6 @@ const Fees = () => {
               <th>Room</th>
               <th>Fee Category</th>
               <th>Base Fee</th>
-              <th>Late Fine</th>
               <th>Total Payable</th>
               <th>Due Date & Countdown</th>
               <th>Status</th>
@@ -210,13 +207,10 @@ const Fees = () => {
             {filteredFees.length > 0 ? (
               filteredFees.map(fee => {
                 const baseAmt = Number(fee.amount) || 0;
-                const lateAmt = Number(fee.lateFee) || 0;
-                const totalAmt = Number(fee.totalPayable) || (baseAmt + lateAmt);
                 const isPaid = fee.status === 'Paid';
-                const isOverdue = fee.status === 'Overdue';
 
                 return (
-                  <tr key={fee.id} className={isOverdue ? 'row-overdue' : ''}>
+                  <tr key={fee.id}>
                     <td>
                       <strong>{fee.personName}</strong>
                       <div className="registration-badge">{fee.registrationNumber}</div>
@@ -227,20 +221,13 @@ const Fees = () => {
                       <div className="sub-month">{fee.month || 'Current'}</div>
                     </td>
                     <td>₹{baseAmt.toLocaleString('en-IN')}</td>
-                    <td>
-                      {lateAmt > 0 ? (
-                        <span className="text-danger font-bold">+ ₹{lateAmt.toLocaleString('en-IN')}</span>
-                      ) : (
-                        <span className="text-muted">₹0</span>
-                      )}
-                    </td>
                     <td className="total-payable-cell">
-                      <strong>₹{totalAmt.toLocaleString('en-IN')}</strong>
+                      <strong>₹{baseAmt.toLocaleString('en-IN')}</strong>
                     </td>
                     <td>
                       <div className="due-date-box">
                         <span>{fee.dueDate}</span>
-                        <span className={`countdown-badge ${isOverdue ? 'badge-danger' : isPaid ? 'badge-success' : 'badge-warning'}`}>
+                        <span className={`countdown-badge ${isPaid ? 'badge-success' : 'badge-warning'}`}>
                           {getDaysRemainingText(fee.dueDate, fee.status)}
                         </span>
                       </div>

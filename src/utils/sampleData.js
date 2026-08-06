@@ -153,13 +153,7 @@ export const samplePeople = rawAllocations.map((item, idx) => {
 
 export const sampleFees = samplePeople.slice(0, 15).map((person, i) => {
   const isPaid = i % 3 === 0;
-  const isOverdue = i % 3 === 2;
-  const dueDateStr = isOverdue ? '2026-08-01' : '2026-08-25';
-  const finePerDay = 50;
-  const overdueDays = isOverdue ? 4 : 0;
-  const lateFee = overdueDays * finePerDay;
   const amount = 5000;
-  const totalPayable = isPaid ? amount : (amount + lateFee);
 
   return {
     id: `fee-${i + 1}`,
@@ -171,14 +165,14 @@ export const sampleFees = samplePeople.slice(0, 15).map((person, i) => {
     month: 'August 2026',
     amount: amount,
     paidAmount: isPaid ? amount : 0,
-    finePerDay: finePerDay,
-    lateFee: isPaid ? 0 : lateFee,
-    totalPayable: totalPayable,
-    dueDate: dueDateStr,
+    finePerDay: 0,
+    lateFee: 0,
+    totalPayable: amount,
+    dueDate: '2026-08-25',
     description: 'Monthly Hostel & Refectory Maintenance Charges',
-    status: isPaid ? 'Paid' : (isOverdue ? 'Overdue' : 'Pending'),
+    status: isPaid ? 'Paid' : 'Pending',
     paymentMode: isPaid ? 'UPI' : null,
-    transactionRef: isPaid ? `TXN2026080${i}` : null,
+    transactionRef: isPaid ? `TXN202608${100 + i}` : null,
     createdAt: todayStr
   };
 });

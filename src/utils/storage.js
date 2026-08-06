@@ -252,64 +252,18 @@ export const getFees = () => {
 export const checkAndUpdateOverdueFees = (feesList) => {
   if (!feesList || !Array.isArray(feesList)) return [];
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const today = new Date(todayStr).getTime();
-  let updated = false;
-
-  const processedFees = feesList.map(fee => {
-    if (fee.status === 'Paid') {
-      return {
-        ...fee,
-        lateFee: fee.lateFee || 0,
-        totalPayable: fee.totalPayable || fee.amount || 0
-      };
-    }
-
-    const dueDate = new Date(fee.dueDate).getTime();
-    if (!isNaN(dueDate) && today > dueDate) {
-      const diffTime = today - dueDate;
-      const overdueDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const finePerDay = Number(fee.finePerDay) || 0;
-      const lateFee = overdueDays * finePerDay;
-      const originalAmount = Number(fee.amount) || 0;
-      const totalPayable = originalAmount + lateFee;
-
-      if (fee.status !== 'Overdue' || fee.lateFee !== lateFee || fee.totalPayable !== totalPayable) {
-        updated = true;
-        // Trigger alert notification for overdue fee if status changed
-        if (fee.status !== 'Overdue') {
-          addNotification({
-            userId: fee.personId || 'all',
-            registrationNumber: fee.registrationNumber,
-            title: '⚠️ Overdue Fee Alert',
-            message: `Hostel fee of ₹${originalAmount} for ${fee.feeType || 'Hostel Fee'} is overdue by ${overdueDays} days. Late Fee: ₹${lateFee}.`,
-            type: 'warning'
-          });
-        }
-        return {
-          ...fee,
-          status: 'Overdue',
-          overdueDays,
-          lateFee,
-          totalPayable
-        };
-      }
-    } else {
-      const originalAmount = Number(fee.amount) || 0;
-      return {
-        ...fee,
-        lateFee: 0,
-        totalPayable: originalAmount
-      };
-    }
-    return fee;
+  return feesList.map(fee => {
+    const originalAmount = Number(fee.amount) || 0;
+    const isPaid = fee.status === 'Paid';
+    return {
+      ...fee,
+      status: isPaid ? 'Paid' : 'Pending',
+      lateFee: 0,
+      finePerDay: 0,
+      overdueDays: 0,
+      totalPayable: originalAmount
+    };
   });
-
-  if (updated) {
-    localStorage.setItem(STORAGE_KEYS.FEES, JSON.stringify(processedFees));
-  }
-
-  return processedFees;
 };
 
 /**
