@@ -19,6 +19,12 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
   const [processStep, setProcessStep] = useState(1);
   const [errorMsg, setErrorMsg] = useState('');
 
+  // 2-Minute QR Countdown & 5-Cycle Auto-Refresh Loop
+  const [qrTimerSeconds, setQrTimerSeconds] = useState(120); // 120s = 2 mins
+  const [qrCycleCount, setQrCycleCount] = useState(1); // 1 to 5
+  const [qrToken, setQrToken] = useState(() => Date.now());
+  const [isQrExpired, setIsQrExpired] = useState(false);
+
   // Reset or pre-fill state when feeRecord opens
   useEffect(() => {
     if (feeRecord) {
@@ -26,8 +32,56 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
       setUpiVerificationStatus(null);
       setErrorMsg('');
       setIsProcessing(false);
+      setQrTimerSeconds(120);
+      setQrCycleCount(1);
+      setQrToken(Date.now());
+      setIsQrExpired(false);
     }
   }, [feeRecord]);
+
+  // 2-Minute Countdown & Auto-Refresh Effect
+  useEffect(() => {
+    let interval = null;
+    if (isOpen && paymentMode === 'UPI' && upiSubMode === 'qr' && !isQrExpired) {
+      interval = setInterval(() => {
+        setQrTimerSeconds(prev => {
+          if (prev <= 1) {
+            // 2 minutes completed! Check refresh cycles
+            setQrCycleCount(currCycle => {
+              if (currCycle >= 5) {
+                // Reached max 5 attempts (10 mins total). Mark expired.
+                setIsQrExpired(true);
+                clearInterval(interval);
+                return currCycle;
+              } else {
+                // Auto-refresh QR code token & reset timer to 120s
+                setQrToken(Date.now());
+                return currCycle + 1;
+              }
+            });
+            return 120;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isOpen, paymentMode, upiSubMode, isQrExpired]);
+
+  const handleResetQrSession = () => {
+    setQrTimerSeconds(120);
+    setQrCycleCount(1);
+    setQrToken(Date.now());
+    setIsQrExpired(false);
+  };
+
+  const formatTimer = (secs) => {
+    const mins = Math.floor(secs / 60);
+    const remainder = secs % 60;
+    return `${String(mins).padStart(2, '0')}:${String(remainder).padStart(2, '0')}`;
+  };
 
   if (!feeRecord) return null;
 
@@ -69,10 +123,10 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
     }, 600);
   };
 
-  // Generate live real-time UPI deep-link QR code URL
+  // Generate live real-time UPI deep-link QR code URL with timestamp token
   const activeUpi = upiId || 'surendhiransurendhiran645@oksbi';
   const upiDeepLink = `upi://pay?pa=${encodeURIComponent(activeUpi)}&pn=${encodeURIComponent(feeRecord.personName || 'Don Bosco Hostel')}&am=${totalPayable}&cu=INR&tn=${encodeURIComponent('Hostel Fee ' + (feeRecord.month || 'Aug 2026'))}`;
-  const liveQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiDeepLink)}`;
+  const liveQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiDeepLink + '&t=' + qrToken)}`;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -81,6 +135,10 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
     if (paymentMode === 'UPI') {
       if (upiSubMode === 'id' && !upiId.includes('@')) {
         setErrorMsg('Please enter a valid UPI ID (e.g. user@bank)');
+        return;
+      }
+      if (upiSubMode === 'qr' && isQrExpired) {
+        setErrorMsg('QR session expired. Please restart the session.');
         return;
       }
     }
@@ -246,21 +304,46 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
             )}
 
             {upiSubMode === 'qr' && (
-              <div className="upi-qr-box">
-                <div className="qr-image-wrapper">
-                  <img src={liveQrUrl} alt="Real Time UPI QR Code" className="live-qr-code-img" />
-                  <div className="qr-scan-badge">Scan to Pay ₹{totalPayable.toLocaleString('en-IN')}</div>
-                </div>
-                <div className="qr-instructions">
-                  <p className="qr-title">Scan with Any Banking App:</p>
-                  <div className="upi-apps-icons">
-                    <span className="app-badge gpay">GPay</span>
-                    <span className="app-badge phonepe">PhonePe</span>
-                    <span className="app-badge paytm">Paytm</span>
-                    <span className="app-badge bhim">BHIM</span>
-                    <span className="app-badge sbi">YONO SBI</span>
+              <div className="upi-qr-container">
+                <div className="qr-timer-bar">
+                  <div className="timer-badge">
+                    ⏱️ Valid For: <span className="timer-countdown">{formatTimer(qrTimerSeconds)}</span>
+                  </div>
+                  <div className="cycle-badge">
+                    🔄 Refresh Cycle: <strong>{qrCycleCount} of 5</strong>
                   </div>
                 </div>
+
+                {isQrExpired ? (
+                  <div className="qr-expired-box">
+                    <span className="expired-icon">🛑</span>
+                    <h4>QR Payment Session Expired</h4>
+                    <p>The 2-minute QR payment session has expired after 5 auto-refresh attempts (10 mins total).</p>
+                    <button type="button" className="btn btn-primary" onClick={handleResetQrSession}>
+                      🔄 Restart 2-Min QR Session
+                    </button>
+                  </div>
+                ) : (
+                  <div className="upi-qr-box">
+                    <div className="qr-image-wrapper">
+                      <img src={liveQrUrl} alt="Real Time UPI QR Code" className="live-qr-code-img" />
+                      <div className="qr-scan-badge">Scan to Pay ₹{totalPayable.toLocaleString('en-IN')}</div>
+                    </div>
+                    <div className="qr-instructions">
+                      <p className="qr-title">Scan with Any Banking App:</p>
+                      <div className="upi-apps-icons">
+                        <span className="app-badge gpay">GPay</span>
+                        <span className="app-badge phonepe">PhonePe</span>
+                        <span className="app-badge paytm">Paytm</span>
+                        <span className="app-badge bhim">BHIM</span>
+                        <span className="app-badge sbi">YONO SBI</span>
+                      </div>
+                      <p className="timer-notice">
+                        ℹ️ QR auto-refreshes every 2 minutes for security (Attempt {qrCycleCount} of 5).
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
