@@ -35,16 +35,10 @@ function AppContent() {
   // Initialize storage on app mount
   useEffect(() => {
     initializeStorage();
-    
-    // Check if we should load sample data
-    const urlParams = new URLSearchParams(window.location.search);
-    const loadSampleData = urlParams.get('demo') === 'true' || localStorage.getItem('rnl_demo_loaded') !== 'true';
-    
-    if (loadSampleData && (!localStorage.getItem('rnl_rooms') || JSON.parse(localStorage.getItem('rnl_rooms') || '[]').length === 0)) {
+    const existingPeople = JSON.parse(localStorage.getItem('rnl_people') || '[]');
+    if (!existingPeople || existingPeople.length < 95) {
       initializeSampleData();
-      localStorage.setItem('rnl_demo_loaded', 'true');
     }
-    
     setAppReady(true);
   }, []);
 
