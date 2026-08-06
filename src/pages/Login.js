@@ -78,28 +78,35 @@ const Login = () => {
       <h2 className="portal-title">
         {view === 'admin' ? 'Admin Login' : 'Student Login'}
       </h2>
+      {view === 'student' && (
+        <p className="portal-hint">Use your Registration Number &amp; Date of Birth to sign in</p>
+      )}
       <form onSubmit={handleSubmit} className="login-form">
         {error && <div className="login-error shake">{error}</div>}
         <div className="form-group">
-          <label htmlFor="username">Username</label>
+          <label htmlFor="username">
+            {view === 'student' ? '🎓 Registration Number' : 'Username'}
+          </label>
           <input
             type="text"
             id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter your username"
+            placeholder={view === 'student' ? 'e.g. DBSM20260001' : 'Enter your username'}
             autoComplete="username"
             className="glass-input"
           />
         </div>
         <div className="form-group">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">
+            {view === 'student' ? '📅 Date of Birth (DD/MM/YYYY)' : 'Password'}
+          </label>
           <input
-            type="password"
+            type={view === 'student' ? 'text' : 'password'}
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
+            placeholder={view === 'student' ? 'e.g. 15/08/2003' : 'Enter your password'}
             autoComplete="current-password"
             className="glass-input"
           />
