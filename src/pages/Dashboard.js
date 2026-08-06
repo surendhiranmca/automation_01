@@ -56,37 +56,43 @@ const Dashboard = ({ updateStatus }) => {
       <div className="dashboard-grid">
         {/* Top Section - 15 Day Update Status */}
         <div className="dashboard-section update-section">
-          <h2 className="section-title">⏱️ 15-Day Automatic Cycle Status</h2>
+          <div className="update-section-header">
+            <h2 className="section-title">⏱️ 15-Day Automatic Cycle Status</h2>
+            <span className="cycle-badge">
+              {updateStatus?.isOverdue ? '⚠️ Cycle Overdue' : '⚡ Auto-Roster Active'}
+            </span>
+          </div>
+
           <div className="update-info">
             <div className="update-countdown">
-              <h3>Next Automatic Update Countdown</h3>
-              <div className="countdown-box">
-                <p className="countdown-text">{getCountdownText()}</p>
-                <div className="progress-bar">
-                  <div
-                    className={`progress-fill ${updateStatus?.isOverdue ? 'overdue' : ''}`}
-                    style={{ width: `${progressPercentage}%` }}
-                  ></div>
-                </div>
-                <p className="progress-text">{progressPercentage}% cycle complete</p>
+              <span className="countdown-subtitle">Next Regeneration Countdown</span>
+              <div className="countdown-main">
+                <span className="countdown-timer">{getCountdownText()}</span>
+                <span className="cycle-percent-pill">{progressPercentage}% Cycle Complete</span>
+              </div>
+              <div className="progress-bar">
+                <div
+                  className={`progress-fill ${updateStatus?.isOverdue ? 'overdue' : ''}`}
+                  style={{ width: `${progressPercentage}%` }}
+                ></div>
               </div>
             </div>
 
-            <div className="update-details">
-              <div className="detail-item">
-                <span className="detail-label">Last List Snapshot</span>
+            <div className="update-details-grid">
+              <div className="detail-card">
+                <span className="detail-label">📅 Last Snapshot</span>
                 <span className="detail-value">
                   {updateStatus?.lastUpdateDate ? formatDate(updateStatus.lastUpdateDate) : 'N/A'}
                 </span>
               </div>
-              <div className="detail-item">
-                <span className="detail-label">Next List Regeneration</span>
+              <div className="detail-card">
+                <span className="detail-label">🔄 Next Regeneration</span>
                 <span className="detail-value">
                   {updateStatus?.nextUpdateDate ? formatDate(updateStatus.nextUpdateDate) : 'N/A'}
                 </span>
               </div>
-              <div className="detail-item">
-                <span className="detail-label">Active Period Range</span>
+              <div className="detail-card">
+                <span className="detail-label">📆 Active Period Range</span>
                 <span className="detail-value">
                   {updateStatus?.currentPeriodStart && updateStatus?.currentPeriodEnd
                     ? `${formatDate(updateStatus.currentPeriodStart)} - ${formatDate(updateStatus.currentPeriodEnd)}`
