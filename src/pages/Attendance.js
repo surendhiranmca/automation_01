@@ -17,6 +17,7 @@ const Attendance = () => {
   const todayStr = new Date().toISOString().split('T')[0];
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [selectedRoom, setSelectedRoom] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const existingAttendance = getAttendanceForDate(selectedDate);
 
@@ -25,8 +26,14 @@ const Attendance = () => {
 
   // Sync state when date or records change
   const currentStudents = useMemo(() => {
-    return people.filter(p => selectedRoom === 'All' || p.roomId === selectedRoom);
-  }, [people, selectedRoom]);
+    return people.filter(p => {
+      const matchesRoom = selectedRoom === 'All' || p.roomId === selectedRoom;
+      const matchesSearch = !searchQuery ||
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.registrationNumber && p.registrationNumber.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesRoom && matchesSearch;
+    });
+  }, [people, selectedRoom, searchQuery]);
 
   const handleStatusChange = (personId, status) => {
     setStatuses(prev => ({
@@ -89,20 +96,36 @@ const Attendance = () => {
       </div>
 
       <div className="attendance-controls">
-        <div className="filter-group">
-          <label>Filter Table / Room: </label>
-          <select
-            className="form-select room-select"
-            value={selectedRoom}
-            onChange={(e) => setSelectedRoom(e.target.value)}
-          >
-            <option value="All">All Tables / Rooms</option>
-            {rooms.map(r => (
-              <option key={r.id} value={r.id}>
-                {r.roomNumber} ({r.roomName})
-              </option>
-            ))}
-          </select>
+        <div className="controls-left">
+          <div className="search-group">
+            <label className="control-label">🔍 Search Student: </label>
+            <input
+              type="text"
+              className="form-input search-input"
+              placeholder="Search by student name or User ID (e.g. DBSM20260001)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button className="clear-search-btn" onClick={() => setSearchQuery('')}>✕</button>
+            )}
+          </div>
+
+          <div className="filter-group">
+            <label className="control-label">Filter Table / Room: </label>
+            <select
+              className="form-select room-select"
+              value={selectedRoom}
+              onChange={(e) => setSelectedRoom(e.target.value)}
+            >
+              <option value="All">All Tables / Rooms</option>
+              {rooms.map(r => (
+                <option key={r.id} value={r.id}>
+                  {r.roomNumber} ({r.roomName})
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="bulk-actions">
