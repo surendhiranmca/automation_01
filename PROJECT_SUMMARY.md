@@ -4,15 +4,28 @@
 
 ---
 
+### 🌐 Live Application & GitHub Repository Links
+
+| Attribute | Details |
+| :--- | :--- |
+| **Web Application URL** | [http://localhost:5000](http://localhost:5000) |
+| **REST API Base URL** | [http://localhost:5000/api](http://localhost:5000/api) |
+| **API Status Endpoint** | [http://localhost:5000/api/status](http://localhost:5000/api/status) |
+| **GitHub Repository** | [https://github.com/surendhiranmca/automation_01.git](https://github.com/surendhiranmca/automation_01.git) |
+| **Active Branch** | `main` |
+| **Latest Commit** | `f456af1` — *"feat: complete application full initialization and sync across all dynamic pages"* |
+
+---
+
 ## 📊 Project Overview
 
 **Project Name:** Hostel Management & Automation System (Don Bosco Skill Mission Bengaluru)  
 **Status:** Production-Ready SRS & Full-Stack Platform  
 **Version:** 2.0.0  
-**Build Date:** August 5, 2026  
+**Build Date:** August 6, 2026  
 **Total Files Created:** 65+  
 **Lines of Code:** 7,500+  
-**Tech Stack:** React 18 + Node.js + Express + MySQL 8.0 / Fallback Database  
+**Tech Stack:** React 18 + Node.js + Express + MySQL 8.0 / Fallback Storage  
 
 ---
 

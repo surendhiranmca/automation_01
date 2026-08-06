@@ -4,6 +4,19 @@ A modern, full-stack React & Node.js enterprise application engineered to automa
 
 ---
 
+### 🌐 Live Application & GitHub Repository Status
+
+| Attribute | Details |
+| :--- | :--- |
+| **Web Application URL** | [http://localhost:5000](http://localhost:5000) |
+| **REST API Base URL** | [http://localhost:5000/api](http://localhost:5000/api) |
+| **API Health Status** | [http://localhost:5000/api/status](http://localhost:5000/api/status) |
+| **GitHub Repository** | [https://github.com/surendhiranmca/automation_01.git](https://github.com/surendhiranmca/automation_01.git) |
+| **Active Branch** | `main` |
+| **Latest Commit** | `f456af1` — *"feat: complete application full initialization and sync across all dynamic pages"* |
+
+---
+
 ## 🎯 Master Features & System Modules
 
 ### 👨‍🎓 Don Bosco Skill Mission Bengaluru Allocations (AUG 2026)
