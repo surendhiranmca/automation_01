@@ -260,7 +260,6 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
                     <span className="app-badge bhim">BHIM</span>
                     <span className="app-badge sbi">YONO SBI</span>
                   </div>
-                  <p className="vpa-text">Payee VPA: <code>{activeUpi}</code></p>
                 </div>
               </div>
             )}
