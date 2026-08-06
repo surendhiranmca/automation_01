@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { generateUUID } from '../utils/storage';
+import { generateUUID, getPeople as getLocalPeople } from '../utils/storage';
 import { validatePerson } from '../utils/validators';
 import { API_BASE_URL } from '../config/api';
 
@@ -10,15 +10,22 @@ export const usePeople = () => {
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch people from backend API
+  // Fetch people from backend API with storage fallback
   const fetchPeople = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`${API_BASE_URL}/api/people`);
       const data = await res.json();
-      setPeople(Array.isArray(data) ? data : []);
+      if (Array.isArray(data) && data.length > 0) {
+        setPeople(data);
+      } else {
+        const localPeople = getLocalPeople();
+        setPeople(localPeople && localPeople.length > 0 ? localPeople : []);
+      }
     } catch (error) {
       console.error('Error fetching people:', error);
+      const localPeople = getLocalPeople();
+      setPeople(localPeople || []);
     } finally {
       setLoading(false);
     }

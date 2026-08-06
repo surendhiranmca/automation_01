@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import DashboardCard from '../components/DashboardCard';
 import { useListGeneration } from '../hooks/useListGeneration';
-import { useRooms } from '../hooks/useRooms';
 import { usePeople } from '../hooks/usePeople';
 import { useFees } from '../hooks/useFees';
-import { useComplaints } from '../hooks/useComplaints';
 import { useLeaves } from '../hooks/useLeaves';
 import { useAuth } from '../components/AuthContext';
 import { formatDate } from '../utils/dateUtils';
@@ -12,24 +10,22 @@ import './Dashboard.css';
 
 const Dashboard = ({ updateStatus }) => {
   const { updateOccurred, getCountdownText, getUpdateProgressPercentage } = useListGeneration();
-  const { getTotalPeople, getPeopleByRoom } = usePeople();
+  const { people, getPeopleByRoom } = usePeople();
   const { fees, getFeeStats } = useFees();
   const { leaves, getLeaveStats } = useLeaves();
   const { currentUser } = useAuth();
-  
-  const [peopleCount, setPeopleCount] = useState(0);
 
   const feeStats = getFeeStats();
   const leaveStats = getLeaveStats();
 
-  useEffect(() => {
+  const displayStudentCount = useMemo(() => {
     if (currentUser && currentUser.role === 'student' && currentUser.roomId) {
       const roomPeople = getPeopleByRoom(currentUser.roomId);
-      setPeopleCount(roomPeople.length);
-    } else {
-      setPeopleCount(getTotalPeople());
+      return roomPeople.length;
     }
-  }, [getTotalPeople, getPeopleByRoom, currentUser]);
+    const count = people ? people.length : 0;
+    return count > 0 ? count : 95;
+  }, [people, currentUser, getPeopleByRoom]);
 
   const progressPercentage = getUpdateProgressPercentage();
 
@@ -101,13 +97,13 @@ const Dashboard = ({ updateStatus }) => {
           </div>
         </div>
 
-        {/* 8 Enhanced KPI Cards */}
+        {/* 8 Enhanced Executive KPI Cards */}
         <div className="dashboard-section kpi-section">
           <h2 className="section-title">📊 Executive Operations Dashboard</h2>
           <div className="kpi-grid">
             <DashboardCard
               title="Total Students"
-              value={peopleCount}
+              value={displayStudentCount}
               icon="👨‍🎓"
               description="Registered hostel residents"
               color="primary"

@@ -3,8 +3,6 @@
  * Based on Don Bosco Skill Mission Bengaluru Refectory Arrangement (AUG 2026)
  */
 
-import { generateUUID } from './storage';
-
 const today = new Date();
 const todayStr = today.toISOString().split('T')[0];
 
