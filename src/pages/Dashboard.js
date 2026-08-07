@@ -8,7 +8,8 @@ import { useAuth } from '../components/AuthContext';
 import { formatDate } from '../utils/dateUtils';
 import './Dashboard.css';
 
-const Dashboard = ({ updateStatus }) => {
+const Dashboard = ({ updateStatus, onPageChange }) => {
+
   const { updateOccurred, getCountdownText, getUpdateProgressPercentage } = useListGeneration();
   const { people, getPeopleByRoom } = usePeople();
   const { fees, getFeeStats } = useFees();
@@ -113,6 +114,7 @@ const Dashboard = ({ updateStatus }) => {
               icon="👨‍🎓"
               description="Registered hostel residents"
               color="primary"
+              onClick={() => onPageChange && onPageChange('namelist')}
             />
             <DashboardCard
               title="Pending Leave Requests"
@@ -120,6 +122,7 @@ const Dashboard = ({ updateStatus }) => {
               icon="⏳"
               description="Awaiting warden approval"
               color="warning"
+              onClick={() => onPageChange && onPageChange('leaves')}
             />
             <DashboardCard
               title="Approved Leaves"
@@ -127,6 +130,7 @@ const Dashboard = ({ updateStatus }) => {
               icon="✅"
               description="Currently outstation"
               color="success"
+              onClick={() => onPageChange && onPageChange('leaves')}
             />
             <DashboardCard
               title="Rejected Leaves"
@@ -134,6 +138,7 @@ const Dashboard = ({ updateStatus }) => {
               icon="❌"
               description="Declined applications"
               color="danger"
+              onClick={() => onPageChange && onPageChange('leaves')}
             />
             <DashboardCard
               title="Pending Fee Payments"
@@ -141,6 +146,7 @@ const Dashboard = ({ updateStatus }) => {
               icon="💳"
               description={`${feeStats.pendingCount} unpaid fee dues`}
               color="warning"
+              onClick={() => onPageChange && onPageChange('fees')}
             />
             <DashboardCard
               title="Paid Fee Amount"
@@ -148,6 +154,7 @@ const Dashboard = ({ updateStatus }) => {
               icon="💰"
               description={`${feeStats.paidCount} completed transactions`}
               color="success"
+              onClick={() => onPageChange && onPageChange('fees')}
             />
             <DashboardCard
               title="Total Fee Entries"
@@ -155,6 +162,7 @@ const Dashboard = ({ updateStatus }) => {
               icon="📋"
               description="Active fee accounts"
               color="primary"
+              onClick={() => onPageChange && onPageChange('fees')}
             />
             <DashboardCard
               title="Total Hostel Revenue"
@@ -162,9 +170,11 @@ const Dashboard = ({ updateStatus }) => {
               icon="🏦"
               description="Total billed revenue"
               color="info"
+              onClick={() => onPageChange && onPageChange('reports')}
             />
           </div>
         </div>
+
 
         {/* Charts & Analytical Graphs */}
         {(!currentUser || currentUser.role === 'admin') && (

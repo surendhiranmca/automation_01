@@ -102,3 +102,44 @@
   font-size: 0.82rem;
   color: #94a3b8;
 }
+
+/* ── Clickable / Redirect Cards ────────────────────────── */
+.dashboard-card-clickable {
+  cursor: pointer;
+}
+
+.dashboard-card-clickable:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.25);
+}
+
+.dashboard-card-clickable:active {
+  transform: translateY(-2px) scale(0.99);
+  transition: all 0.1s ease;
+}
+
+.card-redirect-arrow {
+  margin-left: auto;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(148, 163, 184, 0.4);
+  transition: all 0.3s ease;
+  transform: translateX(0);
+  line-height: 1;
+}
+
+.dashboard-card-clickable:hover .card-redirect-arrow {
+  color: #818cf8;
+  transform: translateX(5px);
+  text-shadow: 0 0 10px rgba(129, 140, 248, 0.7);
+}
+
+.card-trend {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.card-trend.up { color: #10b981; }
+.card-trend.down { color: #ef4444; }
+

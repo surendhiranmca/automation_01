@@ -12,13 +12,15 @@ const DashboardCard = ({
 }) => {
   return (
     <div
-      className={`dashboard-card dashboard-card-${color}`}
+      className={`dashboard-card dashboard-card-${color}${onClick ? ' dashboard-card-clickable' : ''}`}
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
+      title={onClick ? `Click to view ${title}` : ''}
     >
       <div className="card-header">
         <span className="card-icon">{icon}</span>
         <h3 className="card-title">{title}</h3>
+        {onClick && <span className="card-redirect-arrow">→</span>}
       </div>
 
       <div className="card-body">

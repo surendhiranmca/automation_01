@@ -68,7 +68,8 @@ function AppContent() {
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard updateStatus={updateStatus} />;
+        return <Dashboard updateStatus={updateStatus} onPageChange={setCurrentPage} />;
+
       case 'rooms':
         return <Rooms />;
       case 'namelist':
