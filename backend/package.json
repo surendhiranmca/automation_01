@@ -1,17 +1,22 @@
 {
-  "name": "backend",
+  "name": "dbsm-hostel-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "DBSM Hostel Management System Backend API",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["hostel", "management", "dbsm"],
+  "author": "surendhiranmca",
   "license": "ISC",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "dependencies": {
     "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
+    "dotenv": "^16.0.0",
     "express": "^5.2.1",
     "mysql2": "^3.23.2"
   }
