@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+
 
 const app = express();
 app.use(cors());
@@ -199,33 +201,59 @@ let fallbackDb = {
 
 let db = null;
 
-// On cloud hosting (e.g. Render) without explicit MYSQL_HOST, activate fallback storage immediately
-// to prevent 30-second TCP connection timeouts during server startup
-const shouldConnectMysql = (process.env.MYSQL_HOST || process.env.DB_HOST || process.env.NODE_ENV !== 'production');
+// ─────────────────────────────────────────────────────────
+//  CLOUD / LOCAL MySQL CONNECTION
+//  Set environment variables to connect to Railway or any
+//  cloud MySQL. Falls back to in-memory if not configured.
+// ─────────────────────────────────────────────────────────
+const MYSQL_URL = process.env.MYSQL_URL || process.env.DATABASE_URL || null;
+const shouldConnectMysql = !!(MYSQL_URL || process.env.MYSQL_HOST || process.env.DB_HOST);
 
 if (shouldConnectMysql) {
   try {
-    db = mysql.createConnection({
-      host: DB_HOST,
-      user: DB_USER,
-      password: DB_PASSWORD,
-      port: DB_PORT,
-      connectTimeout: 3000, // 3s timeout
-      multipleStatements: true
-    });
+    let dbConfig;
+
+    if (MYSQL_URL) {
+      // Railway / Cloud: use full connection URL (mysql://user:pass@host:port/dbname)
+      dbConfig = {
+        uri: MYSQL_URL,
+        ssl: { rejectUnauthorized: false },
+        connectTimeout: 10000,
+        multipleStatements: true
+      };
+      console.log('🌐 Connecting to Cloud MySQL via DATABASE_URL...');
+    } else {
+      // Local MySQL or manual env vars
+      dbConfig = {
+        host: DB_HOST,
+        port: Number(DB_PORT),
+        user: DB_USER,
+        password: DB_PASSWORD,
+        database: DB_NAME,
+        connectTimeout: 5000,
+        multipleStatements: true,
+        // Enable SSL for cloud connections
+        ...(process.env.MYSQL_SSL === 'true' ? { ssl: { rejectUnauthorized: false } } : {})
+      };
+      console.log(`🔌 Connecting to MySQL at ${DB_HOST}:${DB_PORT}...`);
+    }
+
+    db = MYSQL_URL
+      ? mysql.createConnection(MYSQL_URL.includes('ssl') ? { ...dbConfig } : { uri: MYSQL_URL, connectTimeout: 10000, multipleStatements: true, ssl: { rejectUnauthorized: false } })
+      : mysql.createConnection(dbConfig);
 
     db.on('error', (dbErr) => {
-      console.warn('MySQL socket error caught safely. Switching to fallback storage:', dbErr.message);
+      console.warn('⚠️  MySQL connection error. Switching to fallback storage:', dbErr.code);
       useFallbackDb = true;
     });
 
     db.connect((err) => {
       if (err) {
-        console.warn('MySQL server not reachable. Activating smart storage fallback:', err.message);
+        console.warn('⚠️  MySQL not reachable. Activating in-memory fallback:', err.message);
         useFallbackDb = true;
         return;
       }
-      console.log('Connected to MySQL server');
+      console.log('✅ Connected to MySQL successfully!');
 
       const initSql = `
         CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;
@@ -264,21 +292,23 @@ if (shouldConnectMysql) {
 
       db.query(initSql, (initErr) => {
         if (initErr) {
-          console.error('Error initializing database tables:', initErr.message);
+          console.error('❌ Error initializing database tables:', initErr.message);
           useFallbackDb = true;
         } else {
-          console.log(`Database '${DB_NAME}' and tables ready`);
+          console.log(`✅ Database '${DB_NAME}' and tables ready.`);
         }
       });
     });
   } catch (ex) {
-    console.warn('MySQL initialization failed, using fallback database:', ex.message);
+    console.warn('⚠️  MySQL init failed, using in-memory fallback:', ex.message);
     useFallbackDb = true;
   }
 } else {
   useFallbackDb = true;
-  console.log('Render production environment detected: using instant fallback database.');
+  console.log('ℹ️  No MySQL config found. Running with in-memory storage (all data resets on restart).');
+  console.log('   To connect to cloud DB: set MYSQL_URL or MYSQL_HOST environment variables.');
 }
+
 
 // --- AUTHENTICATION ---
 app.post('/api/auth/login', (req, res) => {
