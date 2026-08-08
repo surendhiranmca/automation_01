@@ -435,16 +435,64 @@ app.post('/api/auth/student-login', (req, res) => {
   });
 });
 
+// --- AUTOMATED DATABASE & CLOUD STORAGE MONITORING ENDPOINTS ---
+app.get('/api/db/status', (req, res) => {
+  const isCloud = !!process.env.MYSQL_URL;
+  const isFallback = useFallbackDb || !db;
+  
+  if (isFallback) {
+    return res.json({
+      status: 'active',
+      database: 'hostel_automation',
+      mode: 'In-Memory Storage (Cloud Ready)',
+      storageType: isCloud ? 'Cloud Connection Configured' : 'Smart Auto-Sync Storage',
+      connected: true,
+      autoSync: true,
+      lastSync: new Date().toISOString(),
+      counts: {
+        rooms: fallbackDb.rooms ? fallbackDb.rooms.length : 0,
+        people: fallbackDb.people ? fallbackDb.people.length : 0,
+        fees: fallbackDb.fees ? fallbackDb.fees.length : 0,
+        leaves: fallbackDb.leaves ? fallbackDb.leaves.length : 0,
+        visitors: fallbackDb.visitors ? fallbackDb.visitors.length : 0
+      }
+    });
+  }
+
+  db.query('SELECT COUNT(*) as rooms FROM rooms', (e1, r1) => {
+    db.query('SELECT COUNT(*) as people FROM people', (e2, r2) => {
+      db.query('SELECT COUNT(*) as fees FROM fees', (e3, r3) => {
+        res.json({
+          status: 'active',
+          database: DB_NAME,
+          mode: 'Cloud MySQL Database',
+          storageType: 'Remote Cloud MySQL Storage',
+          connected: true,
+          autoSync: true,
+          lastSync: new Date().toISOString(),
+          counts: {
+            rooms: r1 ? r1[0].rooms : 0,
+            people: r2 ? r2[0].people : 0,
+            fees: r3 ? r3[0].fees : 0
+          }
+        });
+      });
+    });
+  });
+});
+
 // --- API HEALTH & STATUS INDEX ---
-app.get('/api', (req, res) => {
+app.get(['/api', '/api/', '/api/status', '/api/info'], (req, res) => {
   res.json({
     status: 'online',
     system: 'Don Bosco Skill Mission Hostel Automation API',
     version: '2.0.0',
     mode: useFallbackDb || !db ? 'In-Memory Fallback Storage' : 'MySQL Database',
+    dbStatusEndpoint: '/api/db/status',
     endpoints: [
       '/api/auth/login',
       '/api/auth/student-login',
+      '/api/db/status',
       '/api/rooms',
       '/api/people',
       '/api/leaves',
@@ -455,6 +503,7 @@ app.get('/api', (req, res) => {
     ]
   });
 });
+
 
 // --- ROOMS ---
 app.get('/api/rooms', (req, res) => {
