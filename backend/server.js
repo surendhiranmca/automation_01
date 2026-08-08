@@ -296,8 +296,28 @@ if (shouldConnectMysql) {
           useFallbackDb = true;
         } else {
           console.log(`✅ Database '${DB_NAME}' and tables ready.`);
+          // Auto-seed rooms if empty
+          db.query('SELECT COUNT(*) as count FROM rooms', (cntErr, cntRes) => {
+            if (!cntErr && cntRes && cntRes[0].count === 0) {
+              console.log('🌱 Seeding initial rooms into MySQL...');
+              initialRooms.forEach(room => {
+                db.query(
+                  'INSERT IGNORE INTO rooms (id, roomNumber, roomName, capacity, createdDate, isActive) VALUES (?, ?, ?, ?, ?, ?)',
+                  [room.id, room.roomNumber, room.roomName, room.capacity, room.createdDate, room.isActive]
+                );
+              });
+              console.log('🌱 Seeding initial 95 students into MySQL...');
+              initialPeople.forEach(person => {
+                db.query(
+                  'INSERT IGNORE INTO people (id, name, registrationNumber, roomId, dob, course, assignedDate, listPeriod, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                  [person.id, person.name, person.registrationNumber, person.roomId, person.dob, person.course, person.assignedDate, person.listPeriod, person.status]
+                );
+              });
+            }
+          });
         }
       });
+
     });
   } catch (ex) {
     console.warn('⚠️  MySQL init failed, using in-memory fallback:', ex.message);

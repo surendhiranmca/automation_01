@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { generateUUID } from '../utils/storage';
+import { generateUUID, getRooms as getLocalRooms, saveRooms } from '../utils/storage';
 import { validateRoom, isRoomNumberUnique } from '../utils/validators';
 import { API_BASE_URL } from '../config/api';
 
@@ -10,15 +10,23 @@ export const useRooms = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch rooms from backend API
+  // Fetch rooms from backend API with local storage fallback
   const fetchRooms = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`${API_BASE_URL}/api/rooms`);
       const data = await res.json();
-      setRooms(Array.isArray(data) ? data : []);
+      if (Array.isArray(data) && data.length > 0) {
+        setRooms(data);
+        saveRooms(data);
+      } else {
+        const localRooms = getLocalRooms();
+        setRooms(localRooms && localRooms.length > 0 ? localRooms : []);
+      }
     } catch (error) {
       console.error('Error fetching rooms:', error);
+      const localRooms = getLocalRooms();
+      setRooms(localRooms || []);
     } finally {
       setLoading(false);
     }
@@ -27,6 +35,7 @@ export const useRooms = () => {
   useEffect(() => {
     fetchRooms();
   }, [fetchRooms]);
+
 
   /**
    * Add new room

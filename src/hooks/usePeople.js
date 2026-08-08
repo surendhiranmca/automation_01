@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { generateUUID, getPeople as getLocalPeople } from '../utils/storage';
+import { generateUUID, getPeople as getLocalPeople, savePeople } from '../utils/storage';
 import { validatePerson } from '../utils/validators';
 import { API_BASE_URL } from '../config/api';
 
@@ -18,6 +18,7 @@ export const usePeople = () => {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
         setPeople(data);
+        savePeople(data);
       } else {
         const localPeople = getLocalPeople();
         setPeople(localPeople && localPeople.length > 0 ? localPeople : []);
@@ -39,7 +40,11 @@ export const usePeople = () => {
    * Add new person
    */
   const addPerson = useCallback(async (personData) => {
-    const validation = validatePerson(personData);
+    const dataToValidate = {
+      ...personData,
+      course: personData.course || 'Skill Development Course'
+    };
+    const validation = validatePerson(dataToValidate);
     
     if (!validation.isValid) {
       return { success: false, errors: validation.errors };
@@ -47,28 +52,39 @@ export const usePeople = () => {
 
     const newPerson = {
       id: generateUUID(),
-      name: personData.name,
+      name: personData.name.trim(),
       roomId: personData.roomId,
-      dob: personData.dob,
-      course: personData.course,
+      dob: personData.dob || '2003-08-15',
+      course: personData.course ? personData.course.trim() : 'Skill Development Course',
       assignedDate: new Date().toISOString().split('T')[0],
       listPeriod: new Date().toISOString().split('T')[0],
       status: 'active'
     };
 
     try {
-      await fetch(`${API_BASE_URL}/api/people`, {
+      const res = await fetch(`${API_BASE_URL}/api/people`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPerson)
       });
+      const resData = await res.json();
+      if (resData && resData.registrationNumber) {
+        newPerson.registrationNumber = resData.registrationNumber;
+      }
       await fetchPeople();
       return { success: true, person: newPerson };
     } catch (error) {
       console.error('Error adding person:', error);
-      return { success: false, errors: { form: 'Failed to save to database' } };
+      const currentPeople = getLocalPeople();
+      const nextNum = currentPeople.length + 1;
+      newPerson.registrationNumber = `DBSM2026${String(nextNum).padStart(4, '0')}`;
+      const updated = [...currentPeople, newPerson];
+      savePeople(updated);
+      setPeople(updated);
+      return { success: true, person: newPerson };
     }
   }, [fetchPeople]);
+
 
   /**
    * Update existing person

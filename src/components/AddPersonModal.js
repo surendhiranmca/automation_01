@@ -15,20 +15,21 @@ const AddPersonModal = ({ isOpen, person, rooms, onSave, onClose, errors: initia
     if (person) {
       setFormData({
         name: person.name,
-        course: person.course || '',
-        dob: person.dob || '',
-        roomId: person.roomId
+        course: person.course || 'Skill Development Course',
+        dob: person.dob || '2003-08-15',
+        roomId: person.roomId || (rooms && rooms.length > 0 ? rooms[0].id : '')
       });
     } else {
       setFormData({
         name: '',
-        course: '',
-        dob: '',
-        roomId: ''
+        course: 'Skill Development Course',
+        dob: '2003-08-15',
+        roomId: rooms && rooms.length > 0 ? rooms[0].id : ''
       });
     }
     setErrors(initialErrors || {});
-  }, [person, initialErrors, isOpen]);
+  }, [person, initialErrors, isOpen, rooms]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
