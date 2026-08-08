@@ -42,6 +42,7 @@ const Settings = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setIsImporting(true);
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -56,6 +57,8 @@ const Settings = () => {
       } catch (err) {
         error('Invalid file format');
         console.error(err);
+      } finally {
+        setIsImporting(false);
       }
     };
     reader.readAsText(file);
