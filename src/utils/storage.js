@@ -25,12 +25,15 @@ const STORAGE_KEYS = {
  * Initialize storage with default values if not present
  */
 export const initializeStorage = () => {
-  if (!localStorage.getItem(STORAGE_KEYS.ROOMS) || JSON.parse(localStorage.getItem(STORAGE_KEYS.ROOMS)).length === 0) {
+  const existingRooms = localStorage.getItem(STORAGE_KEYS.ROOMS);
+  if (!existingRooms || JSON.parse(existingRooms).length === 0 || (existingRooms && existingRooms.includes('Table 1'))) {
     localStorage.setItem(STORAGE_KEYS.ROOMS, JSON.stringify(sampleRooms));
   }
-  if (!localStorage.getItem(STORAGE_KEYS.PEOPLE) || JSON.parse(localStorage.getItem(STORAGE_KEYS.PEOPLE)).length === 0) {
+  const existingPeople = localStorage.getItem(STORAGE_KEYS.PEOPLE);
+  if (!existingPeople || JSON.parse(existingPeople).length === 0 || (existingPeople && existingPeople.includes('Table 1'))) {
     localStorage.setItem(STORAGE_KEYS.PEOPLE, JSON.stringify(samplePeople));
   }
+
   if (!localStorage.getItem(STORAGE_KEYS.LIST_PERIODS)) {
     localStorage.setItem(STORAGE_KEYS.LIST_PERIODS, JSON.stringify([]));
   }

@@ -6,18 +6,19 @@
 const today = new Date();
 const todayStr = today.toISOString().split('T')[0];
 
-// 9 Refectory Tables / Rooms
+// 9 Hostel Rooms (301-309)
 export const sampleRooms = [
-  { id: 'room-tbl-1', roomNumber: 'Table 1', roomName: 'Refectory Block - Table 1', capacity: 12, createdDate: todayStr, isActive: true },
-  { id: 'room-tbl-2', roomNumber: 'Table 2', roomName: 'Refectory Block - Table 2', capacity: 12, createdDate: todayStr, isActive: true },
-  { id: 'room-tbl-3', roomNumber: 'Table 3', roomName: 'Refectory Block - Table 3', capacity: 12, createdDate: todayStr, isActive: true },
-  { id: 'room-tbl-4', roomNumber: 'Table 4', roomName: 'Refectory Block - Table 4', capacity: 12, createdDate: todayStr, isActive: true },
-  { id: 'room-tbl-0', roomNumber: 'Table 0 (Extra)', roomName: 'Refectory Block - Table 0 Extra', capacity: 12, createdDate: todayStr, isActive: true },
-  { id: 'room-tbl-5', roomNumber: 'Table 5', roomName: 'Refectory Block - Table 5', capacity: 12, createdDate: todayStr, isActive: true },
-  { id: 'room-tbl-6', roomNumber: 'Table 6', roomName: 'Refectory Block - Table 6', capacity: 12, createdDate: todayStr, isActive: true },
-  { id: 'room-tbl-7', roomNumber: 'Table 7', roomName: 'Refectory Block - Table 7', capacity: 12, createdDate: todayStr, isActive: true },
-  { id: 'room-tbl-8', roomNumber: 'Table 8', roomName: 'Refectory Block - Table 8', capacity: 12, createdDate: todayStr, isActive: true }
+  { id: 'room-tbl-1', roomNumber: 'Room 301', roomName: 'Hostel Block A - Room 301', capacity: 12, createdDate: todayStr, isActive: true },
+  { id: 'room-tbl-2', roomNumber: 'Room 302', roomName: 'Hostel Block A - Room 302', capacity: 12, createdDate: todayStr, isActive: true },
+  { id: 'room-tbl-3', roomNumber: 'Room 303', roomName: 'Hostel Block A - Room 303', capacity: 12, createdDate: todayStr, isActive: true },
+  { id: 'room-tbl-4', roomNumber: 'Room 304', roomName: 'Hostel Block A - Room 304', capacity: 12, createdDate: todayStr, isActive: true },
+  { id: 'room-tbl-0', roomNumber: 'Room 305', roomName: 'Hostel Block B - Room 305 (Extra)', capacity: 12, createdDate: todayStr, isActive: true },
+  { id: 'room-tbl-5', roomNumber: 'Room 306', roomName: 'Hostel Block B - Room 306', capacity: 12, createdDate: todayStr, isActive: true },
+  { id: 'room-tbl-6', roomNumber: 'Room 307', roomName: 'Hostel Block B - Room 307', capacity: 12, createdDate: todayStr, isActive: true },
+  { id: 'room-tbl-7', roomNumber: 'Room 308', roomName: 'Hostel Block C - Room 308', capacity: 12, createdDate: todayStr, isActive: true },
+  { id: 'room-tbl-8', roomNumber: 'Room 309', roomName: 'Hostel Block C - Room 309', capacity: 12, createdDate: todayStr, isActive: true }
 ];
+
 
 const rawAllocations = [
   // Table 1
