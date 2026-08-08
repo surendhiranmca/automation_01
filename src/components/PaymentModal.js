@@ -5,7 +5,7 @@ import './PaymentModal.css';
 const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
   const [paymentMode, setPaymentMode] = useState('UPI'); // UPI, Card, NetBanking
   const [upiSubMode, setUpiSubMode] = useState('id'); // 'id' or 'qr'
-  const [upiId, setUpiId] = useState('surendhiransurendhiran645@oksbi');
+  const [upiId, setUpiId] = useState('');
   const [isVerifyingUpi, setIsVerifyingUpi] = useState(false);
   const [upiVerificationStatus, setUpiVerificationStatus] = useState(null); // null, 'valid', 'invalid'
   const [verifiedName, setVerifiedName] = useState('');
@@ -28,7 +28,7 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
   // Reset or pre-fill state when feeRecord opens
   useEffect(() => {
     if (feeRecord) {
-      setUpiId('surendhiransurendhiran645@oksbi');
+      setUpiId('');
       setUpiVerificationStatus(null);
       setErrorMsg('');
       setIsProcessing(false);
@@ -38,6 +38,7 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
       setIsQrExpired(false);
     }
   }, [feeRecord]);
+
 
   // 2-Minute Countdown & Auto-Refresh Effect
   useEffect(() => {
@@ -258,7 +259,7 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
                 <div className="upi-input-group">
                   <input
                     type="text"
-                    placeholder="e.g. surendhiransurendhiran645@oksbi"
+                    placeholder="Enter VPA / UPI ID (e.g. name@oksbi, name@paytm, 9876543210@ybl)"
                     value={upiId}
                     onChange={(e) => {
                       setUpiId(e.target.value);
@@ -267,6 +268,7 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
                     className="form-input upi-input"
                     required
                   />
+
                   <button
                     type="button"
                     className="btn btn-secondary btn-verify-upi"
