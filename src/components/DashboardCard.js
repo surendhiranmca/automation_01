@@ -26,12 +26,26 @@ const DashboardCard = ({
       <div className="card-body">
         <p className="card-value">{value}</p>
         {description && <p className="card-description">{description}</p>}
-        {trend && (
-          <p className={`card-trend ${trend.direction}`}>
-            {trend.direction === 'up' ? '↑' : '↓'} {trend.text}
-          </p>
-        )}
+        {trend && (() => {
+          if (typeof trend === 'string') {
+            const isUp = trend === 'positive' || trend === 'up' || trend === 'success';
+            const isDown = trend === 'negative' || trend === 'down' || trend === 'danger';
+            const dirClass = isUp ? 'up' : isDown ? 'down' : 'neutral';
+            const arrow = isUp ? '↑' : isDown ? '↓' : '•';
+            return (
+              <p className={`card-trend ${dirClass}`}>
+                {arrow} {isUp ? 'Real-time Active' : isDown ? 'Action Required' : 'Live Data'}
+              </p>
+            );
+          }
+          return (
+            <p className={`card-trend ${trend.direction || 'up'}`}>
+              {trend.direction === 'down' ? '↓' : '↑'} {trend.text}
+            </p>
+          );
+        })()}
       </div>
+
     </div>
   );
 };

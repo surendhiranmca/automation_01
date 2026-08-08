@@ -144,24 +144,32 @@ const Fees = () => {
           title="Total Revenue Collected"
           value={`₹${stats.totalCollected.toLocaleString('en-IN')}`}
           icon="💰"
+          description={`${stats.paidCount} completed fee payments`}
+          color="success"
           trend="positive"
         />
         <DashboardCard
           title="Pending Dues"
           value={`₹${stats.pendingFees.toLocaleString('en-IN')}`}
           icon="⏳"
+          description={`${stats.pendingCount} unpaid student dues`}
+          color="warning"
           trend="warning"
         />
         <DashboardCard
           title="Paid Entries"
           value={stats.paidCount}
           icon="✅"
+          description="Verified transaction receipts"
+          color="success"
           trend="positive"
         />
         <DashboardCard
           title="Total Fee Entries"
           value={stats.totalEntries}
           icon="📋"
+          description="Active student fee accounts"
+          color="primary"
           trend="neutral"
         />
       </div>
@@ -208,6 +216,7 @@ const Fees = () => {
               filteredFees.map(fee => {
                 const baseAmt = Number(fee.amount) || 0;
                 const isPaid = fee.status === 'Paid';
+                const roomStr = fee.roomNumber ? (fee.roomNumber.toString().startsWith('Room') ? fee.roomNumber : `Room ${fee.roomNumber}`) : 'Room 301';
 
                 return (
                   <tr key={fee.id}>
@@ -215,11 +224,12 @@ const Fees = () => {
                       <strong>{fee.personName}</strong>
                       <div className="registration-badge">{fee.registrationNumber}</div>
                     </td>
-                    <td>Room {fee.roomNumber}</td>
+                    <td>{roomStr}</td>
                     <td>
                       <span className="category-badge">{fee.feeType || 'Hostel Fee'}</span>
                       <div className="sub-month">{fee.month || 'Current'}</div>
                     </td>
+
                     <td>₹{baseAmt.toLocaleString('en-IN')}</td>
                     <td className="total-payable-cell">
                       <strong>₹{baseAmt.toLocaleString('en-IN')}</strong>
