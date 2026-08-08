@@ -3,7 +3,7 @@ import { useAuth } from './AuthContext';
 import NotificationCenter from './NotificationCenter';
 import './Header.css';
 
-const Header = ({ title, updateStatus }) => {
+const Header = ({ title, updateStatus, onPageChange }) => {
   const { currentUser, logout } = useAuth();
   const [theme, setTheme] = useState(() => localStorage.getItem('app_theme') || 'light');
 
@@ -48,7 +48,8 @@ const Header = ({ title, updateStatus }) => {
           </select>
         </div>
 
-        <NotificationCenter />
+        <NotificationCenter onPageChange={onPageChange} />
+
         
         {currentUser && (
           <div className="header-user-info">

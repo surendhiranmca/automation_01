@@ -116,7 +116,8 @@ function AppContent() {
       <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
       
       <div className="app-main">
-        <Header title={getPageTitle()} updateStatus={updateStatus} />
+        <Header title={getPageTitle()} updateStatus={updateStatus} onPageChange={setCurrentPage} />
+
         
         <main className="app-content">
           {renderPage()}
