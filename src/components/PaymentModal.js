@@ -129,12 +129,12 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
   const upiDeepLink = `upi://pay?pa=${encodeURIComponent(activeUpi)}&pn=${encodeURIComponent('DBSM hostel fee')}&am=${totalPayable}&cu=INR&tn=${encodeURIComponent('Hostel Fee ' + (feeRecord.month || 'Aug 2026'))}`;
   const liveQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiDeepLink + '&t=' + qrToken)}`;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const startPaymentProcess = (modeOverride = null) => {
     setErrorMsg('');
+    const effectiveMode = modeOverride || paymentMode;
 
-    if (paymentMode === 'UPI') {
-      if (upiSubMode === 'id' && !upiId.includes('@')) {
+    if (effectiveMode === 'UPI') {
+      if (upiSubMode === 'id' && (!upiId || !upiId.includes('@'))) {
         setErrorMsg('Please enter a valid UPI ID (e.g. user@bank)');
         return;
       }
@@ -144,7 +144,7 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
       }
     }
 
-    if (paymentMode === 'Card') {
+    if (effectiveMode === 'Card') {
       if (cardNumber.replaceAll(' ', '').length < 16) {
         setErrorMsg('Please enter a valid 16-digit card number');
         return;
@@ -166,7 +166,7 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
           setIsProcessing(false);
           const generatedTxnId = `TXN20260806${Math.floor(1000 + Math.random() * 9000)}`;
           onCompletePayment(feeRecord.id, {
-            paymentMode: paymentMode === 'UPI' ? (upiSubMode === 'qr' ? 'UPI_QR' : 'UPI_ID') : paymentMode,
+            paymentMode: effectiveMode === 'UPI' ? (upiSubMode === 'qr' ? 'UPI_QR' : 'UPI_ID') : effectiveMode,
             transactionId: generatedTxnId,
             amountPaid: totalPayable,
             upiId: activeUpi
@@ -175,6 +175,11 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
         }, 800);
       }, 900);
     }, 800);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    startPaymentProcess();
   };
 
   return (
@@ -296,6 +301,16 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
                     <span>Invalid UPI ID. Please check the handle format (e.g. user@oksbi)</span>
                   </div>
                 )}
+
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  style={{ width: '100%', marginTop: '12px', padding: '12px', fontWeight: '700', borderRadius: '10px' }}
+                  onClick={() => startPaymentProcess('UPI')}
+                  disabled={isProcessing || !upiId.trim()}
+                >
+                  {isProcessing ? '⏳ Processing Payment...' : `🔒 Pay ₹${totalPayable.toLocaleString('en-IN')} via UPI ID`}
+                </button>
               </div>
             )}
 
@@ -337,6 +352,15 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
                       <p className="timer-notice">
                         ℹ️ QR auto-refreshes every 2 minutes for security (Attempt {qrCycleCount} of 5).
                       </p>
+                      <button
+                        type="button"
+                        className="btn btn-success"
+                        style={{ width: '100%', marginTop: '12px', padding: '12px', fontWeight: '700', fontSize: '0.95rem', borderRadius: '10px' }}
+                        onClick={() => startPaymentProcess('UPI')}
+                        disabled={isProcessing}
+                      >
+                        {isProcessing ? '⏳ Processing Payment...' : `📲 Auto-Confirm & Complete ₹${totalPayable.toLocaleString('en-IN')} QR Payment`}
+                      </button>
                     </div>
                   </div>
                 )}
@@ -346,7 +370,7 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
         )}
 
         {paymentMode === 'Card' && (
-          <>
+          <div className="card-section-box" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div className="form-group">
               <label className="form-label required">Card Number</label>
               <input
@@ -385,19 +409,39 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
                 />
               </div>
             </div>
-          </>
+            <button
+              type="button"
+              className="btn btn-success"
+              style={{ width: '100%', marginTop: '8px', padding: '12px', fontWeight: '700', borderRadius: '10px' }}
+              onClick={() => startPaymentProcess('Card')}
+              disabled={isProcessing}
+            >
+              {isProcessing ? '⏳ Processing Card Payment...' : `🔒 Pay ₹${totalPayable.toLocaleString('en-IN')} via Card`}
+            </button>
+          </div>
         )}
 
         {paymentMode === 'NetBanking' && (
-          <div className="form-group">
-            <label className="form-label required">Select Bank</label>
-            <select className="form-select">
-              <option value="SBI">State Bank of India</option>
-              <option value="HDFC">HDFC Bank</option>
-              <option value="ICICI">ICICI Bank</option>
-              <option value="Axis">Axis Bank</option>
-              <option value="Canara">Canara Bank</option>
-            </select>
+          <div className="netbanking-section-box" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="form-group">
+              <label className="form-label required">Select Bank</label>
+              <select className="form-select">
+                <option value="SBI">State Bank of India</option>
+                <option value="HDFC">HDFC Bank</option>
+                <option value="ICICI">ICICI Bank</option>
+                <option value="Axis">Axis Bank</option>
+                <option value="Canara">Canara Bank</option>
+              </select>
+            </div>
+            <button
+              type="button"
+              className="btn btn-success"
+              style={{ width: '100%', marginTop: '8px', padding: '12px', fontWeight: '700', borderRadius: '10px' }}
+              onClick={() => startPaymentProcess('NetBanking')}
+              disabled={isProcessing}
+            >
+              {isProcessing ? '⏳ Connecting to Bank...' : `🏦 Pay ₹${totalPayable.toLocaleString('en-IN')} via Net Banking`}
+            </button>
           </div>
         )}
 
@@ -408,19 +452,16 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
           <div className="processing-overlay">
             <div className="processing-card">
               <div className="spinner-ring"></div>
-              {processStep === 1 && <p>🔍 Verifying UPI VPA & Bank Network...</p>}
-              {processStep === 2 && <p>📲 Sending Authorization Request to Mobile App...</p>}
-              {processStep === 3 && <p>✅ Payment Confirmed by State Bank of India!</p>}
+              {processStep === 1 && <p>🔍 Verifying Payment Gateway & Bank Network...</p>}
+              {processStep === 2 && <p>📲 Sending Authorization Request to Banking App...</p>}
+              {processStep === 3 && <p>✅ Payment Confirmed! Generating Official Receipt...</p>}
             </div>
           </div>
         )}
 
-        <div className="modal-actions">
-          <button type="button" className="btn btn-secondary" onClick={onClose} disabled={isProcessing}>
+        <div className="modal-actions" style={{ justifyContent: 'flex-end', marginTop: '12px' }}>
+          <button type="button" className="btn btn-secondary" onClick={onClose} disabled={isProcessing} style={{ minWidth: '110px' }}>
             Cancel
-          </button>
-          <button type="submit" className="btn btn-success btn-pay" disabled={isProcessing}>
-            {isProcessing ? '⏳ Processing Payment...' : `🔒 Complete ₹${totalPayable.toLocaleString('en-IN')} Payment`}
           </button>
         </div>
       </form>
@@ -429,3 +470,4 @@ const PaymentModal = ({ isOpen, onClose, feeRecord, onCompletePayment }) => {
 };
 
 export default PaymentModal;
+
