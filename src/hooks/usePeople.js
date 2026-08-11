@@ -16,12 +16,12 @@ export const usePeople = () => {
       setLoading(true);
       const res = await fetch(`${API_BASE_URL}/api/people`);
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setPeople(data);
         savePeople(data);
       } else {
         const localPeople = getLocalPeople();
-        setPeople(localPeople && localPeople.length > 0 ? localPeople : []);
+        setPeople(localPeople || []);
       }
     } catch (error) {
       console.error('Error fetching people:', error);
@@ -50,9 +50,14 @@ export const usePeople = () => {
       return { success: false, errors: validation.errors };
     }
 
+    const currentPeople = getLocalPeople();
+    const nextNum = currentPeople.length + 1;
+    const regNum = `DBSM2026${String(nextNum).padStart(4, '0')}`;
+
     const newPerson = {
       id: generateUUID(),
       name: personData.name.trim(),
+      registrationNumber: regNum,
       roomId: personData.roomId,
       dob: personData.dob || '2003-08-15',
       course: personData.course ? personData.course.trim() : 'Skill Development Course',
@@ -60,6 +65,11 @@ export const usePeople = () => {
       listPeriod: new Date().toISOString().split('T')[0],
       status: 'active'
     };
+
+    // Immediately update local state & storage for instant UI response
+    const updated = [...currentPeople, newPerson];
+    savePeople(updated);
+    setPeople(updated);
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/people`, {
@@ -71,18 +81,12 @@ export const usePeople = () => {
       if (resData && resData.registrationNumber) {
         newPerson.registrationNumber = resData.registrationNumber;
       }
-      await fetchPeople();
-      return { success: true, person: newPerson };
+      fetchPeople();
     } catch (error) {
-      console.error('Error adding person:', error);
-      const currentPeople = getLocalPeople();
-      const nextNum = currentPeople.length + 1;
-      newPerson.registrationNumber = `DBSM2026${String(nextNum).padStart(4, '0')}`;
-      const updated = [...currentPeople, newPerson];
-      savePeople(updated);
-      setPeople(updated);
-      return { success: true, person: newPerson };
+      console.error('Error adding person to server:', error);
     }
+
+    return { success: true, person: newPerson };
   }, [fetchPeople]);
 
 
