@@ -45,8 +45,8 @@ export const initializeStorage = () => {
   }
   if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify([
-      { id: 'admin-001', username: 'admin', password: 'admin', role: 'admin' },
-      { id: 'student-001', username: 'student', password: 'password', role: 'student' }
+      { id: 'admin-001', username: 'admin', password: 'DBSM_Hostel#2026!Secure', role: 'admin' },
+      { id: 'student-001', username: 'student', password: 'DBSM_Student#2026!', role: 'student' }
     ]));
   }
   if (!localStorage.getItem(STORAGE_KEYS.FEES) || JSON.parse(localStorage.getItem(STORAGE_KEYS.FEES)).length === 0) {

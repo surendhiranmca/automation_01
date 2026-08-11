@@ -6,6 +6,7 @@ import { useFees } from '../hooks/useFees';
 import { useLeaves } from '../hooks/useLeaves';
 import { useNotifications } from '../hooks/useNotifications';
 import DashboardCard from '../components/DashboardCard';
+import CalendarWidget from '../components/CalendarWidget';
 import './WelcomeDashboard.css';
 
 const WelcomeDashboard = ({ onHostelLogin }) => {
@@ -166,6 +167,11 @@ const WelcomeDashboard = ({ onHostelLogin }) => {
 
       {/* Main Student Dashboard Content Grid */}
       <div className="student-sections-grid">
+        {/* Calendar & Deadline Tracker Widget (Right Corner) */}
+        <div className="student-calendar-card">
+          <CalendarWidget />
+        </div>
+
         {/* Room & Roommates Card */}
         <div className="student-section-card">
           <h3>🏠 Room & Roommate Information</h3>

@@ -91,7 +91,8 @@ API server runs at `http://localhost:5000`.
 
 ---
 
-## 🔑 Login Credentials
+## 🔑 Security & Login Credentials
 
-- **Admin Account**: Username: `admin` | Password: `admin` | Role: `Admin / Warden`
-- **Student Accounts**: User ID: `DBSM20260001` to `DBSM20260095` | Password: `password` or DOB (`15/08/2003`)
+- **Admin Account**: Username: `admin` | Password: `DBSM_Hostel#2026!Secure` (Configurable via `ADMIN_PASSWORD` in `.env`)
+- **Student Accounts**: User ID: `DBSM20260001` to `DBSM20260095` | Passcode: DOB (`15/08/2003` or `2003-08-15`) or default `DBSM_Student#2026!`
+

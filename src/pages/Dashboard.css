@@ -28,6 +28,20 @@
   font-weight: 700;
 }
 
+/* Dashboard Top Row 2-Column Layout (Cycle Info + Right Corner Calendar) */
+.dashboard-top-row {
+  display: grid;
+  grid-template-columns: 1fr 390px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-top-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* 15-Day Update Section */
 .update-section {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, var(--card-bg, rgba(30, 41, 59, 0.8)) 100%);

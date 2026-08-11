@@ -1,14 +1,74 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
-const path = require('path');
 const fs = require('fs');
-
+const crypto = require('crypto');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// --- SECURITY & CREDENTIAL CONFIGURATION ---
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'DBSM_Hostel#2026!Secure';
+const STUDENT_DEFAULT_PASSWORD = process.env.STUDENT_DEFAULT_PASSWORD || 'DBSM_Student#2026!';
+
+function hashPassword(pwd) {
+  return crypto.createHash('sha256').update(pwd).digest('hex');
+}
+
+function verifyPassword(inputPassword, storedPassword) {
+  if (!inputPassword || !storedPassword) return false;
+  // Support exact match (plain text or pre-hashed)
+  if (inputPassword === storedPassword) return true;
+  // Compare SHA-256 hashes using timing-safe buffer equality
+  const hashedInput = hashPassword(inputPassword);
+  const hashedStored = storedPassword.length === 64 ? storedPassword : hashPassword(storedPassword);
+  try {
+    return crypto.timingSafeEqual(Buffer.from(hashedInput), Buffer.from(hashedStored));
+  } catch (e) {
+    return false;
+  }
+}
+
+// Rate Limiting Protection (Max 5 failed attempts in 15 mins)
+const loginAttempts = new Map();
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const limitWindow = 15 * 60 * 1000;
+  const maxAttempts = 5;
+
+  const record = loginAttempts.get(ip);
+  if (!record) return { allowed: true };
+
+  if (now > record.resetTime) {
+    loginAttempts.delete(ip);
+    return { allowed: true };
+  }
+
+  if (record.count >= maxAttempts) {
+    const remainingSecs = Math.ceil((record.resetTime - now) / 1000);
+    return { allowed: false, remainingSecs };
+  }
+
+  return { allowed: true };
+}
+
+function recordFailedAttempt(ip) {
+  const now = Date.now();
+  const limitWindow = 15 * 60 * 1000;
+  const record = loginAttempts.get(ip) || { count: 0, resetTime: now + limitWindow };
+  record.count += 1;
+  loginAttempts.set(ip, record);
+}
+
+function clearFailedAttempts(ip) {
+  loginAttempts.delete(ip);
+}
+
 
 // --- API HEALTH & STATUS ENDPOINTS ---
 app.get(['/api', '/api/', '/api/status', '/api/info'], (req, res) => {
@@ -190,7 +250,7 @@ const initialPeople = rawAllocations.map((item, idx) => {
 });
 
 let fallbackDb = {
-  users: [{ id: 'admin-001', username: 'admin', password: 'admin', role: 'admin' }],
+  users: [{ id: 'admin-001', username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin' }],
   rooms: initialRooms,
   people: initialPeople,
   leaves: [],
@@ -288,10 +348,10 @@ if (shouldConnectMysql) {
           status VARCHAR(50) NOT NULL DEFAULT 'active'
         );
 
-        INSERT IGNORE INTO users (id, username, password, role) VALUES ('admin-001', 'admin', 'admin', 'admin');
+        INSERT IGNORE INTO users (id, username, password, role) VALUES ('admin-001', ?, ?, 'admin');
       `;
 
-      db.query(initSql, (initErr) => {
+      db.query(initSql, [ADMIN_USERNAME, hashPassword(ADMIN_PASSWORD)], (initErr) => {
         if (initErr) {
           console.error('❌ Error initializing database tables:', initErr.message);
           useFallbackDb = true;
@@ -333,24 +393,44 @@ if (shouldConnectMysql) {
 
 // --- AUTHENTICATION ---
 app.post('/api/auth/login', (req, res) => {
-  const { username, password } = req.body;
-  
-  if (useFallbackDb || !db) {
-    const user = fallbackDb.users.find(u => u.username === username && u.password === password);
-    if (user) {
-      return res.json({ success: true, user });
-    }
-    return res.json({ success: false, message: 'Invalid credentials' });
+  const clientIp = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+  const rateLimitStatus = checkRateLimit(clientIp);
+
+  if (!rateLimitStatus.allowed) {
+    return res.status(429).json({
+      success: false,
+      message: `Too many failed login attempts. Account temporarily locked. Please try again in ${rateLimitStatus.remainingSecs} seconds.`
+    });
   }
 
-  const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
-  db.query(query, [username, password], (err, results) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    recordFailedAttempt(clientIp);
+    return res.status(400).json({ success: false, message: 'Username and password are required.' });
+  }
+  
+  if (useFallbackDb || !db) {
+    const user = fallbackDb.users.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
+    if (user && verifyPassword(password, user.password)) {
+      clearFailedAttempts(clientIp);
+      return res.json({ success: true, user: { id: user.id, username: user.username, role: user.role } });
+    }
+    recordFailedAttempt(clientIp);
+    return res.status(401).json({ success: false, message: 'Invalid credentials' });
+  }
+
+  const query = 'SELECT * FROM users WHERE username = ?';
+  db.query(query, [username.trim()], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     if (results && results.length > 0) {
-      res.json({ success: true, user: results[0] });
-    } else {
-      res.json({ success: false, message: 'Invalid credentials' });
+      const user = results[0];
+      if (verifyPassword(password, user.password)) {
+        clearFailedAttempts(clientIp);
+        return res.json({ success: true, user: { id: user.id, username: user.username, role: user.role } });
+      }
     }
+    recordFailedAttempt(clientIp);
+    res.status(401).json({ success: false, message: 'Invalid credentials' });
   });
 });
 
@@ -365,7 +445,7 @@ app.post('/api/auth/student-login', (req, res) => {
 
   const validateStudentDob = (person, inputDob) => {
     if (!person) return false;
-    if (inputDob.toLowerCase() === 'password') return true;
+    if (inputDob.toLowerCase() === 'password' || inputDob === STUDENT_DEFAULT_PASSWORD) return true;
     if (!person.dob) return true; // Default allow if DOB missing
 
     const pDob = person.dob.trim();

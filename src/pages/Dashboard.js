@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import DashboardCard from '../components/DashboardCard';
+import CalendarWidget from '../components/CalendarWidget';
 import { useListGeneration } from '../hooks/useListGeneration';
 import { usePeople } from '../hooks/usePeople';
 import { useFees } from '../hooks/useFees';
@@ -73,52 +74,59 @@ const Dashboard = ({ updateStatus, onPageChange }) => {
   return (
     <div className="dashboard-page">
       <div className="dashboard-grid">
-        {/* Top Section - 15 Day Update Status */}
-        <div className="dashboard-section update-section">
-          <div className="update-section-header">
-            <h2 className="section-title">⏱️ 15-Day Automatic Cycle Status</h2>
-            <span className="cycle-badge">
-              {updateStatus?.isOverdue ? '⚠️ Cycle Overdue' : '⚡ Auto-Roster Active'}
-            </span>
+        {/* Top Section - 2 Column Row: Cycle Status (Left) & Calendar Deadline Tracker (Right Corner) */}
+        <div className="dashboard-top-row">
+          <div className="dashboard-section update-section">
+            <div className="update-section-header">
+              <h2 className="section-title">⏱️ 15-Day Automatic Cycle Status</h2>
+              <span className="cycle-badge">
+                {updateStatus?.isOverdue ? '⚠️ Cycle Overdue' : '⚡ Auto-Roster Active'}
+              </span>
+            </div>
+
+            <div className="update-info">
+              <div className="update-countdown">
+                <span className="countdown-subtitle">Next Regeneration Countdown</span>
+                <div className="countdown-main">
+                  <span className="countdown-timer">{getCountdownText()}</span>
+                  <span className="cycle-percent-pill">{progressPercentage}% Cycle Complete</span>
+                </div>
+                <div className="progress-bar">
+                  <div
+                    className={`progress-fill ${updateStatus?.isOverdue ? 'overdue' : ''}`}
+                    style={{ width: `${progressPercentage}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="update-details-grid">
+                <div className="detail-card">
+                  <span className="detail-label">📅 Last Snapshot</span>
+                  <span className="detail-value">
+                    {updateStatus?.lastUpdateDate ? formatDate(updateStatus.lastUpdateDate) : 'N/A'}
+                  </span>
+                </div>
+                <div className="detail-card">
+                  <span className="detail-label">🔄 Next Regeneration</span>
+                  <span className="detail-value">
+                    {updateStatus?.nextUpdateDate ? formatDate(updateStatus.nextUpdateDate) : 'N/A'}
+                  </span>
+                </div>
+                <div className="detail-card">
+                  <span className="detail-label">📆 Active Period Range</span>
+                  <span className="detail-value">
+                    {updateStatus?.currentPeriodStart && updateStatus?.currentPeriodEnd
+                      ? `${formatDate(updateStatus.currentPeriodStart)} - ${formatDate(updateStatus.currentPeriodEnd)}`
+                      : 'N/A'}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="update-info">
-            <div className="update-countdown">
-              <span className="countdown-subtitle">Next Regeneration Countdown</span>
-              <div className="countdown-main">
-                <span className="countdown-timer">{getCountdownText()}</span>
-                <span className="cycle-percent-pill">{progressPercentage}% Cycle Complete</span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className={`progress-fill ${updateStatus?.isOverdue ? 'overdue' : ''}`}
-                  style={{ width: `${progressPercentage}%` }}
-                ></div>
-              </div>
-            </div>
-
-            <div className="update-details-grid">
-              <div className="detail-card">
-                <span className="detail-label">📅 Last Snapshot</span>
-                <span className="detail-value">
-                  {updateStatus?.lastUpdateDate ? formatDate(updateStatus.lastUpdateDate) : 'N/A'}
-                </span>
-              </div>
-              <div className="detail-card">
-                <span className="detail-label">🔄 Next Regeneration</span>
-                <span className="detail-value">
-                  {updateStatus?.nextUpdateDate ? formatDate(updateStatus.nextUpdateDate) : 'N/A'}
-                </span>
-              </div>
-              <div className="detail-card">
-                <span className="detail-label">📆 Active Period Range</span>
-                <span className="detail-value">
-                  {updateStatus?.currentPeriodStart && updateStatus?.currentPeriodEnd
-                    ? `${formatDate(updateStatus.currentPeriodStart)} - ${formatDate(updateStatus.currentPeriodEnd)}`
-                    : 'N/A'}
-                </span>
-              </div>
-            </div>
+          {/* Interactive Calendar & Deadline Tracker (Top Right Corner) */}
+          <div className="dashboard-top-right-calendar">
+            <CalendarWidget />
           </div>
         </div>
 

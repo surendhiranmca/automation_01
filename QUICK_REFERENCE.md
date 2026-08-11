@@ -66,7 +66,7 @@ App opens at `http://localhost:3000` ✨
 
 ### Logging In (Multi-Role Portal)
 1. Navigate to `/login` or click profile icon
-2. **Admin/Staff Login**: Enter Username (`admin`) & Password (`admin`)
+2. **Admin/Staff Login**: Enter Username (`admin`) & Password (`DBSM_Hostel#2026!Secure` or configured `.env` password)
 3. **Student Login**: Enter Registration Number (e.g. `REG2026001`) & Date of Birth (`DD/MM/YYYY`)
 
 ### Add & Print Fee Receipts

@@ -68,7 +68,7 @@ cd ..
    ```
 
 #### Mode B: Zero-Config In-Memory Fallback
-- No configuration required! If MySQL is not connected, the server automatically initializes in-memory fallback storage with demo admin user (`admin` / `admin`).
+- No configuration required! If MySQL is not connected, the server automatically initializes in-memory fallback storage with admin user (`admin` / `DBSM_Hostel#2026!Secure`, configurable via `.env`).
 
 ### Step 4: Start Frontend and Backend Servers
 
