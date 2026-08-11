@@ -30,8 +30,8 @@ export const initializeStorage = () => {
     localStorage.setItem(STORAGE_KEYS.ROOMS, JSON.stringify(sampleRooms));
   }
   const existingPeople = localStorage.getItem(STORAGE_KEYS.PEOPLE);
-  if (!existingPeople || JSON.parse(existingPeople).length === 0 || (existingPeople && existingPeople.includes('Table 1'))) {
-    localStorage.setItem(STORAGE_KEYS.PEOPLE, JSON.stringify(samplePeople));
+  if (!existingPeople) {
+    localStorage.setItem(STORAGE_KEYS.PEOPLE, JSON.stringify([]));
   }
 
   if (!localStorage.getItem(STORAGE_KEYS.LIST_PERIODS)) {

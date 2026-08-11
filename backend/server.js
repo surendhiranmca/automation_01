@@ -233,26 +233,13 @@ const rawAllocations = [
   { name: 'Roslin', roomId: 'room-tbl-8', roomNum: 'Table 8' }
 ];
 
-const initialPeople = rawAllocations.map((item, idx) => {
-  const numStr = String(idx + 1).padStart(4, '0');
-  return {
-    id: `person-${numStr}`,
-    name: item.name,
-    registrationNumber: `DBSM2026${numStr}`,
-    roomId: item.roomId,
-    roomNumber: item.roomNum,
-    course: 'Skill Development Course',
-    dob: '2003-08-15',
-    assignedDate: '2026-08-05',
-    listPeriod: '2026-08-05',
-    status: 'active'
-  };
-});
+const initialPeople = [];
 
 let fallbackDb = {
   users: [{ id: 'admin-001', username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin' }],
   rooms: initialRooms,
-  people: initialPeople,
+  people: 
+  [],
   leaves: [],
   fees: [],
   visitors: [],
@@ -759,6 +746,18 @@ app.put('/api/people/:id', (req, res) => {
   db.query(query, [name, roomId, dob, course, status, req.params.id], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ success: true });
+  });
+});
+
+app.delete('/api/people/all', (req, res) => {
+  if (useFallbackDb || !db) {
+    fallbackDb.people = [];
+    return res.json({ success: true, message: 'All student records cleared.' });
+  }
+
+  db.query('DELETE FROM people', (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, message: 'All student records deleted from database.' });
   });
 });
 

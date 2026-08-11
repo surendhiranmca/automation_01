@@ -1,3 +1,4 @@
+
 /**
  * Sample Data for Room Name List & Hostel Automation System
  * Based on Don Bosco Skill Mission Bengaluru Refectory Arrangement (AUG 2026)
@@ -135,103 +136,20 @@ const rawAllocations = [
   { name: 'Roslin', roomId: 'room-tbl-8', roomNum: 'Table 8' }
 ];
 
-export const samplePeople = rawAllocations.map((item, idx) => {
-  const numStr = String(idx + 1).padStart(4, '0');
-  const regNum = `DBSM2026${numStr}`;
-  return {
-    id: `person-${numStr}`,
-    name: item.name,
-    registrationNumber: regNum,
-    roomId: item.roomId,
-    roomNumber: item.roomNum,
-    course: 'Skill Development Course',
-    dob: '2003-08-15',
-    assignedDate: todayStr,
-    listPeriod: todayStr,
-    status: 'active'
-  };
-});
+export const samplePeople = [];
 
-export const sampleFees = samplePeople.slice(0, 15).map((person, i) => {
-  const isPaid = i % 3 === 0;
-  const amount = 5000;
+export const sampleFees = [];
 
-  return {
-    id: `fee-${i + 1}`,
-    personId: person.id,
-    personName: person.name,
-    registrationNumber: person.registrationNumber,
-    roomNumber: person.roomNumber,
-    feeType: 'Hostel Fee',
-    month: 'August 2026',
-    amount: amount,
-    paidAmount: isPaid ? amount : 0,
-    finePerDay: 0,
-    lateFee: 0,
-    totalPayable: amount,
-    dueDate: '2026-08-25',
-    description: 'Monthly Hostel & Refectory Maintenance Charges',
-    status: isPaid ? 'Paid' : 'Pending',
-    paymentMode: isPaid ? 'UPI' : null,
-    transactionRef: isPaid ? `TXN202608${100 + i}` : null,
-    createdAt: todayStr
-  };
-});
+export const sampleLeaves = [];
 
-export const sampleLeaves = [
-  {
-    id: 'leave-1',
-    personId: samplePeople[0].id,
-    personName: samplePeople[0].name,
-    registrationNumber: samplePeople[0].registrationNumber,
-    roomNumber: samplePeople[0].roomNumber,
-    leaveDate: '2026-08-10',
-    returnDate: '2026-08-14',
-    reason: 'Family event and home visit',
-    contactNumber: '9876543210',
-    parentContact: '9876543211',
-    status: 'Pending',
-    appliedDate: todayStr,
-    remarks: ''
-  },
-  {
-    id: 'leave-2',
-    personId: samplePeople[24].id, // Surendhiran
-    personName: samplePeople[24].name,
-    registrationNumber: samplePeople[24].registrationNumber,
-    roomNumber: samplePeople[24].roomNumber,
-    leaveDate: '2026-08-15',
-    returnDate: '2026-08-18',
-    reason: 'Medical checkup',
-    contactNumber: '9876543212',
-    parentContact: '9876543213',
-    status: 'Approved',
-    appliedDate: todayStr,
-    remarks: 'Approved by Warden'
-  }
-];
-
-export const sampleComplaints = [
-  {
-    id: 'comp-1',
-    personId: samplePeople[0].id,
-    personName: samplePeople[0].name,
-    registrationNumber: samplePeople[0].registrationNumber,
-    roomNumber: samplePeople[0].roomNumber,
-    category: 'Furniture',
-    priority: 'Medium',
-    description: 'Table chair cushion needs replacement.',
-    status: 'Pending',
-    createdAt: todayStr
-  }
-];
+export const sampleComplaints = [];
 
 export const initializeSampleData = () => {
   localStorage.setItem('rnl_rooms', JSON.stringify(sampleRooms));
-  localStorage.setItem('rnl_people', JSON.stringify(samplePeople));
-  localStorage.setItem('rnl_fees', JSON.stringify(sampleFees));
-  localStorage.setItem('rnl_leaves', JSON.stringify(sampleLeaves));
-  localStorage.setItem('rnl_complaints', JSON.stringify(sampleComplaints));
+  localStorage.setItem('rnl_people', JSON.stringify([]));
+  localStorage.setItem('rnl_fees', JSON.stringify([]));
+  localStorage.setItem('rnl_leaves', JSON.stringify([]));
+  localStorage.setItem('rnl_complaints', JSON.stringify([]));
   localStorage.setItem('rnl_demo_loaded', 'true');
   return true;
 };

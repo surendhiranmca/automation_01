@@ -25,8 +25,7 @@ const Dashboard = ({ updateStatus, onPageChange }) => {
       const roomPeople = getPeopleByRoom(currentUser.roomId);
       return roomPeople.length;
     }
-    const count = people ? people.length : 0;
-    return count > 0 ? count : 95;
+    return people ? people.length : 0;
   }, [people, currentUser, getPeopleByRoom]);
 
   const progressPercentage = getUpdateProgressPercentage();

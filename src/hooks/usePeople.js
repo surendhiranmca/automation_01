@@ -117,7 +117,7 @@ export const usePeople = () => {
   }, [fetchPeople]);
 
   /**
-   * Delete person
+   * Delete single person
    */
   const deletePerson = useCallback(async (personId) => {
     try {
@@ -131,6 +131,22 @@ export const usePeople = () => {
       return { success: false };
     }
   }, [fetchPeople]);
+
+  /**
+   * Clear all people
+   */
+  const clearAllPeople = useCallback(async () => {
+    try {
+      await fetch(`${API_BASE_URL}/api/people/all`, {
+        method: 'DELETE'
+      });
+    } catch (error) {
+      console.error('Error clearing all people:', error);
+    }
+    savePeople([]);
+    setPeople([]);
+    return { success: true };
+  }, []);
 
   /**
    * Transfer person to another room
@@ -228,6 +244,7 @@ export const usePeople = () => {
     addPerson,
     updatePerson,
     deletePerson,
+    clearAllPeople,
     transferPerson,
     getPerson,
     getPeopleByRoom,

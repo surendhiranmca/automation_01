@@ -12,7 +12,7 @@ import './NameList.css';
 
 const NameList = () => {
   const { rooms } = useRooms();
-  const { people, addPerson, updatePerson, deletePerson, transferPerson, searchPeople, getPeopleByRoom } = usePeople();
+  const { people, addPerson, updatePerson, deletePerson, clearAllPeople, transferPerson, searchPeople } = usePeople();
   const { success, error } = useNotification();
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({ roomId: '', status: '' });
@@ -23,6 +23,14 @@ const NameList = () => {
   const [transferPerson_data, setTransferPerson_data] = useState(null);
   const [formErrors, setFormErrors] = useState({});
   const { currentUser } = useAuth();
+
+  const handleClearAllPeople = async () => {
+    if (window.confirm('⚠️ Are you sure you want to remove ALL students from the list? This action cannot be undone.')) {
+      await clearAllPeople();
+      success('All student records have been removed successfully!');
+      setSelectedPersonId(null);
+    }
+  };
 
   // Filter people based on search and filters
   const filteredPeople = useMemo(() => {
@@ -150,13 +158,24 @@ const NameList = () => {
         </div>
 
         {(!currentUser || currentUser.role === 'admin') && (
-          <button
-            className="btn btn-primary btn-lg"
-            onClick={() => handleOpenPersonModal()}
-            disabled={rooms.length === 0}
-          >
-            + Add New Person
-          </button>
+          <div className="namelist-action-buttons" style={{ display: 'flex', gap: '10px' }}>
+            <button
+              className="btn btn-primary btn-lg"
+              onClick={() => handleOpenPersonModal()}
+              disabled={rooms.length === 0}
+            >
+              + Add New Person
+            </button>
+            {people.length > 0 && (
+              <button
+                className="btn btn-danger btn-lg"
+                onClick={handleClearAllPeople}
+                style={{ backgroundColor: '#ef4444', color: '#ffffff', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                🗑️ Clear All Students
+              </button>
+            )}
+          </div>
         )}
       </div>
 
